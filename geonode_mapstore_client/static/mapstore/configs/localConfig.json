@@ -3268,44 +3268,65 @@
                                     "labelId": "gnhome.uploadDataset",
                                     "value": "layer",
                                     "type": "link",
-                                    "href": "{context.getCataloguePath('/catalogue/#/upload/dataset')}"
+                                    "href": "{context.getCataloguePath('/catalogue/#/upload/dataset')}",
+                                    "menuItemAttributes": {
+                                        "cy-data": "btn-add-resource-upload-dataset"
+                                    }
                                 },
                                 {
                                     "labelId": "gnhome.uploadDocument",
                                     "value": "document",
                                     "type": "link",
-                                    "href": "{context.getCataloguePath('/catalogue/#/upload/document')}"
+                                    "href": "{context.getCataloguePath('/catalogue/#/upload/document')}",
+                                    "menuItemAttributes": {
+                                        "cy-data": "btn-add-resource-upload-document"
+                                    }
                                 },
                                 {
                                     "labelId": "gnhome.createDataset",
                                     "value": "layer",
                                     "type": "link",
                                     "href": "{context.getCataloguePath('/catalogue/#/create/dataset')}",
+                                    "menuItemAttributes": {
+                                        "cy-data": "btn-add-resource-create-dataset"
+                                    },
                                     "disableIf": "{(state('settings') && state('settings').createLayer) ? false : true}"
                                 },
                                 {
                                     "labelId": "gnhome.createMap",
                                     "value": "map",
                                     "type": "link",
-                                    "href": "{context.getCataloguePath('/catalogue/#/map/new')}"
+                                    "href": "{context.getCataloguePath('/catalogue/#/map/new')}",
+                                    "menuItemAttributes": {
+                                        "cy-data": "btn-add-resource-create-map"
+                                    }
                                 },
                                 {
                                     "labelId": "gnhome.createGeostory",
                                     "value": "geostory",
                                     "type": "link",
-                                    "href": "{context.getCataloguePath('/catalogue/#/geostory/new')}"
+                                    "href": "{context.getCataloguePath('/catalogue/#/geostory/new')}",
+                                    "menuItemAttributes": {
+                                        "cy-data": "btn-add-resource-create-geostory"
+                                    }
                                 },
                                 {
                                     "labelId": "gnhome.createDashboard",
                                     "value": "dashboard",
                                     "type": "link",
-                                    "href": "{context.getCataloguePath('/catalogue/#/dashboard/new')}"
+                                    "href": "{context.getCataloguePath('/catalogue/#/dashboard/new')}",
+                                    "menuItemAttributes": {
+                                        "cy-data": "btn-add-resource-create-dashboard"
+                                    }
                                 },
                                 {
                                     "labelId": "gnhome.remoteServices",
                                     "value": "remote",
                                     "type": "link",
-                                    "href": "/services/?limit=5"
+                                    "href": "/services/?limit=5",
+                                    "menuItemAttributes": {
+                                        "cy-data": "btn-add-resource-remote-services"
+                                    }
                                 }
                             ]
                         }
