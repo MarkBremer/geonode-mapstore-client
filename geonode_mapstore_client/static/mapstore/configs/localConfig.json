@@ -3259,6 +3259,9 @@
                             "disableIf": "{(state('settings') && state('settings').isMobile) || !(state('user') && state('user').perms && state('user').perms.includes('add_resource'))}",
                             "type": "dropdown",
                             "variant": "primary",
+                            "toggleAttributes": {
+                                "cy-data": "btn-add-resource"
+                            },
                             "noCaret": true,
                             "items": [
                                 {
