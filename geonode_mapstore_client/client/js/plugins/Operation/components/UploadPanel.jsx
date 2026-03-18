@@ -25,10 +25,10 @@ import {
     validateFileResourceUploads,
     parseFileResourceUploads
 } from '../../../utils/UploadUtils';
-function ErrorButton(props) {
+function ErrorButton({ dataCy, ...props }) {
     return (
         <div {...props} style={{ width: 'fit-content', margin: 'auto' }} className="gn-disabled-upload">
-            <Button disabled variant="primary">
+            <Button disabled variant="primary" cy-data={dataCy}>
                 <Message msgId="gnviewer.upload" />
             </Button>
         </div>
@@ -162,20 +162,30 @@ function UploadPanel({
                     leftColumn={<div className="gn-upload-list">
                         <div className="gn-upload-list-header">
                             <input disabled={disabledAdd} ref={inputFile} value="" type="file" multiple onChange={(event) => handleFile([...event?.target?.files])} style={{ display: 'none' }} />
-                            <Button disabled={disabledAdd} onClick={() => inputFile?.current?.click()}>
+                            <Button
+                                disabled={disabledAdd}
+                                cy-data="btn-select-files"
+                                onClick={() => inputFile?.current?.click()}
+                            >
                                 <Glyphicon glyph="plus" /><Message msgId="gnviewer.selectFiles" />
                             </Button>
-                            {enableRemoteUploads && <Button disabled={disabledAdd} className={"add-url"} onClick={() => handleRemote()}>
+                            {enableRemoteUploads && <Button
+                                disabled={disabledAdd}
+                                className={"add-url"}
+                                cy-data="btn-add-from-url"
+                                onClick={() => handleRemote()}
+                            >
                                 <Glyphicon glyph="plus" /><Message msgId="gnviewer.addFromUrl" />
                             </Button>}
                         </div>
                         {uploadsList.length > 0
                             ? (
                                 <ul>
-                                    {uploadsList.map((upload) => {
+                                    {uploadsList.map((upload, idx) => {
                                         return (
-                                            <li key={upload.id}>
+                                            <li key={upload.id} cy-data={`upload-card-${idx}`}>
                                                 <PendingUploadCard
+                                                    dataCyPrefix={`upload-card-${idx}`}
                                                     data={upload}
                                                     progress={progress[upload.id]}
                                                     loading={loading}
@@ -215,11 +225,19 @@ function UploadPanel({
                                 <Message msgId="gnviewer.unsupportedFiles" />{unsupportedLabels ? `: ${unsupportedLabels}` : ''}
                             </Alert> : null}
                             {(uploads.length > 0 && getExceedingFileSize(uploads, maxAllowedSize)) ?
-                                <ButtonWithTooltip noTooltipWhenDisabled tooltip={<Message msgId="gnviewer.exceedingFileMsg" msgParams={{ limit: maxAllowedSize }} />} >
+                                <ButtonWithTooltip
+                                    noTooltipWhenDisabled
+                                    dataCy="btn-upload"
+                                    tooltip={<Message msgId="gnviewer.exceedingFileMsg" msgParams={{ limit: maxAllowedSize }} />}
+                                >
                                     <Message msgId="gnviewer.upload" />
                                 </ButtonWithTooltip>
                                 : supportedUploads.length > maxParallelUploads ?
-                                    <ButtonWithTooltip noTooltipWhenDisabled tooltip={<Message msgId="gnviewer.parallelUploadLimit" msgParams={{ limit: maxParallelUploads }} />} >
+                                    <ButtonWithTooltip
+                                        noTooltipWhenDisabled
+                                        dataCy="btn-upload"
+                                        tooltip={<Message msgId="gnviewer.parallelUploadLimit" msgParams={{ limit: maxParallelUploads }} />}
+                                    >
                                         <Message msgId="gnviewer.upload" />
                                     </ButtonWithTooltip>
                                     :
@@ -229,6 +247,7 @@ function UploadPanel({
                                             <Button
                                                 key={id}
                                                 variant={variant ? variant : "primary"}
+                                                cy-data="btn-upload"
                                                 disabled={readyUploads.length === 0 || disabled}
                                                 style={{ marginRight: id < uploadActions.length - 1 ? 8 : 0 }}
                                                 onClick={() => handleUpload(shouldConfirm, action)}

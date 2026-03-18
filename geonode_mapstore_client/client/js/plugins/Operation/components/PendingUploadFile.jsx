@@ -21,7 +21,8 @@ function PendingUploadFile({
     progress,
     error,
     onCancel,
-    onRemove
+    onRemove,
+    dataCyPrefix
 }) {
     const { id, missingExtensions: uploadMissingExtension = [], baseName, ext: extensions, files } = data;
     const missingMainFile = uploadMissingExtension.length === 1 && uploadMissingExtension[0] === '*';
@@ -30,13 +31,13 @@ function PendingUploadFile({
         <div className="gn-upload-card">
             <div className="gn-upload-card-header">
                 {(missingExtensions.length > 0 || missingMainFile) ? <div className="gn-upload-card-error"><Glyphicon glyph="exclamation-sign" /></div> : null}
-                <div className="gn-upload-card-title">{baseName}</div>
+                <div className="gn-upload-card-title" cy-data={`${dataCyPrefix}-title`}>{baseName}</div>
                 <div>
                     {error ? <ErrorMessageWithTooltip tooltipId={<Message msgId="gnviewer.invalidUploadMessageErrorTooltip" />} /> : null}
                     {onRemove
-                        ? (!loading || !progress) ? <Button size="xs" onClick={() => onRemove(id)}>
+                        ? (!loading || !progress) ? <Button size="xs" cy-data={`${dataCyPrefix}-btn-remove`} onClick={() => onRemove(id)}>
                             <Glyphicon glyph="trash" />
-                        </Button> : <Button size="xs" onClick={() => onCancel([id])}>
+                        </Button> : <Button size="xs" cy-data={`${dataCyPrefix}-btn-remove`} onClick={() => onCancel([id])}>
                             <Glyphicon glyph="stop" />
                         </Button>
                         : null}
@@ -53,7 +54,7 @@ function PendingUploadFile({
                 </div>
             </div>}
             <div className="gn-upload-card-bottom">
-                <ul>
+                <ul cy-data={`${dataCyPrefix}-ul-filetype`}>
                     {extensions.map(ext => {
                         return (
                             <li key={ext}>
@@ -64,10 +65,10 @@ function PendingUploadFile({
                 </ul>
                 {
                     (loading && progress) ?
-                        <div className="gn-upload-card-progress-read">
+                        <div className="gn-upload-card-progress-read" cy-data={`${dataCyPrefix}-size`}>
                             {progress < 100 ? `${progress}%` : <Spinner />}
                         </div> :
-                        <div>{getSize(files, true)}</div>
+                        <div cy-data={`${dataCyPrefix}-size`}>{getSize(files, true)}</div>
                 }
             </div>
             {(loading && progress) ? <div style={{ position: 'relative' }}>

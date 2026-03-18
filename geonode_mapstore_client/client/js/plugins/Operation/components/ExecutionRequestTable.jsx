@@ -53,9 +53,10 @@ function ExecutionRequestTable({
         );
     }
 
-    const RenderActionButton = ({request, href, msgId}) => (
+    const RenderActionButton = ({request, href, msgId, dataCy}) => (
         <Button
             variant="primary"
+            cy-data={dataCy}
             onClick={() => handleDelete(request.exec_id)}
             href={href}
             target="_blank"
@@ -79,14 +80,23 @@ function ExecutionRequestTable({
                         </tr>
                     </thead>
                     <tbody>
-                        {requests.map((request) => {
+                        {requests.map((request, idx) => {
                             const detailUrls = (request?.output_params?.resources || [])?.map(res=> res.detail_url);
                             return (
-                                <tr key={request.exec_id} className={request.status === 'failed' ? 'danger' : ''}>
-                                    <td><Glyphicon glyph={iconName}/>{' '}{request.name}</td>
-                                    <td>{moment(request.created).format('MMMM Do YYYY, h:mm:ss a')}</td>
+                                <tr
+                                    key={request.exec_id}
+                                    className={request.status === 'failed' ? 'danger' : ''}
+                                    cy-data={`upload-list-${idx}`}
+                                >
+                                    <td cy-data={`upload-list-${idx}-title`}><Glyphicon glyph={iconName}/>{' '}{request.name}</td>
+                                    <td cy-data={`upload-list-${idx}-created`}>{moment(request.created).format('MMMM Do YYYY, h:mm:ss a')}</td>
                                     <td>
-                                        {request.status === 'running' ? <Spinner className="gn-upload-loader-spinner"/> : null}
+                                        {request.status === 'running' ? (
+                                            <Spinner
+                                                className="gn-upload-loader-spinner"
+                                                cy-data={`upload-list-${idx}-processing`}
+                                            />
+                                        ) : null}
                                         {request.status === 'failed'
                                             ? <ErrorMessageWithTooltip
                                                 label={<Message msgId="gnviewer.invalidUploadMessageError" />}
@@ -99,6 +109,7 @@ function ExecutionRequestTable({
                                                 {viewResource && <RenderActionButton
                                                     request={request}
                                                     msgId={viewResourceLabelId ?? 'gnviewer.view'}
+                                                    dataCy={`upload-list-${idx}-btn-view`}
                                                     href={detailUrls.length === 1 ? detailUrls[0] : getCataloguePath('/catalogue/#/')}
                                                 /> }
                                                 {editMetadata && <RenderActionButton
@@ -119,7 +130,7 @@ function ExecutionRequestTable({
                                             : null}
                                     </td>
                                     <td>
-                                        <Button onClick={() => handleDelete(request.exec_id)}>
+                                        <Button cy-data={`upload-list-${idx}-btn-remove`} onClick={() => handleDelete(request.exec_id)}>
                                             <Glyphicon glyph="trash" />
                                         </Button>
                                     </td>

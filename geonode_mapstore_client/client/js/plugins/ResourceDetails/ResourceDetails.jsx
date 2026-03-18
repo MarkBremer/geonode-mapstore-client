@@ -466,7 +466,7 @@ export default createPlugin('ResourceDetails', {
                     onSelect: requestResource,
                     onShow: setShowDetails
                 }
-            )(({ resourcesGridId, resource, onSelect, component, selectedResource, onShow }) => {
+            )(({ resourcesGridId, resource, onSelect, component, selectedResource, onShow, cardCyPrefix }) => {
                 const Component = component;
                 function handleClick() {
                     if (!selectedResource['@ms-detail'] || selectedResource?.pk !== resource?.pk) {
@@ -480,6 +480,7 @@ export default createPlugin('ResourceDetails', {
                         glyph="details"
                         square
                         labelId="resourcesCatalog.viewResourceProperties"
+                        cardCyPrefix={cardCyPrefix}
                     />
                 );
             }),

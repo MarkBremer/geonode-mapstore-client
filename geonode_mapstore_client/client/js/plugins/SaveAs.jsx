@@ -167,7 +167,8 @@ function CopyMenuItem({
     resource,
     canCopy,
     onCopy,
-    component
+    component,
+    cardCyPrefix
 }) {
     if (!canCopy(resource)) {
         return null;
@@ -180,6 +181,7 @@ function CopyMenuItem({
             }
             labelId="gnviewer.clone"
             glyph="duplicate"
+            cardCyPrefix={cardCyPrefix}
         />
     );
 }

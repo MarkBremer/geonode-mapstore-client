@@ -161,7 +161,8 @@ function DeleteMenuItem({
     resource,
     authenticated,
     onDelete,
-    component
+    component,
+    cardCyPrefix
 }) {
 
     if (!(authenticated && resource?.perms?.includes('delete_resourcebase'))) {
@@ -175,6 +176,7 @@ function DeleteMenuItem({
             }
             glyph="trash"
             labelId="gnhome.delete"
+            cardCyPrefix={cardCyPrefix}
         />
     );
 }
