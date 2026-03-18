@@ -128,7 +128,8 @@ const ConnectedDeleteResourcePlugin = connect(
 const DeleteButton = ({
     onClick,
     size,
-    resource
+    resource,
+    dataCy
 }) => {
 
     const handleClickButton = () => {
@@ -140,6 +141,7 @@ const DeleteButton = ({
             variant="danger"
             size={size}
             onClick={handleClickButton}
+            {...(dataCy ? { 'cy-data': dataCy } : {})}
         >
             <Message msgId="gnhome.delete"/>
         </Button>
@@ -162,7 +164,8 @@ function DeleteMenuItem({
     authenticated,
     onDelete,
     component,
-    cardCyPrefix
+    cardCyPrefix,
+    dataCy
 }) {
 
     if (!(authenticated && resource?.perms?.includes('delete_resourcebase'))) {
@@ -177,6 +180,8 @@ function DeleteMenuItem({
             glyph="trash"
             labelId="gnhome.delete"
             cardCyPrefix={cardCyPrefix}
+            dataCy={dataCy}
+            {...(dataCy ? { 'cy-data': dataCy } : {})}
         />
     );
 }

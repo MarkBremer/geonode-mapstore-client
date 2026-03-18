@@ -55,7 +55,8 @@ function SaveButton({
     loading,
     className,
     dirtyState: dirtyStateProp,
-    saveMsgId = "gnviewer.save"
+    saveMsgId = "gnviewer.save",
+    dataCy
 }) {
     return (
         <Button
@@ -64,6 +65,7 @@ function SaveButton({
             onClick={() => onClick()}
             disabled={loading}
             className={`${className ?? ''} ${dirtyStateProp ? 'ms-notification-circle warning' : ''}`}
+            {...(dataCy ? { 'cy-data': dataCy } : {})}
         >
             <Message msgId={saveMsgId}/>{' '}{loading && <Spinner />}
         </Button>
@@ -74,7 +76,8 @@ function ResourceDetailsSaveButton({
     component,
     loading,
     onClick,
-    dirtyState
+    dirtyState,
+    dataCy
 }) {
     const Component = component;
     return Component
@@ -87,6 +90,8 @@ function ResourceDetailsSaveButton({
                 disabled={!dirtyState || loading}
                 onClick={() => onClick()}
                 loading={loading}
+                dataCy={dataCy}
+                {...(dataCy ? { 'cy-data': dataCy } : {})}
             />
         )
         : null;

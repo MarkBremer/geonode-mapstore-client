@@ -405,7 +405,7 @@ export default createPlugin('ResourceDetails', {
     containers: {
         ActionNavbar: [{
             name: 'ResourceDetailsButton',
-            Component: connect((state) => ({resource: getResourceData(state)}), { onShow: setShowDetails })(({ component, resourcesGridId, onShow, resource }) => {
+            Component: connect((state) => ({resource: getResourceData(state)}), { onShow: setShowDetails })(({ component, resourcesGridId, onShow, resource, dataCy }) => {
                 if (!resource?.pk) return null;
 
                 const Component = component;
@@ -418,6 +418,8 @@ export default createPlugin('ResourceDetails', {
                         glyph="details"
                         square
                         labelId="resourcesCatalog.viewResourceProperties"
+                        dataCy={dataCy}
+                        {...(dataCy ? { 'cy-data': dataCy } : {})}
                     />
                 ) : null;
             }),
@@ -438,10 +440,11 @@ export default createPlugin('ResourceDetails', {
                     onSelectTab: setDetailPanelTab,
                     onShowDetails: setShowDetails
                 }
-            )(({ enabled, size, onSelectTab, onShowDetails }) => {
+            )(({ enabled, size, onSelectTab, onShowDetails, dataCy }) => {
                 return enabled
                     ? <Button
                         size={size}
+                        {...(dataCy ? { 'cy-data': dataCy } : {})}
                         onClick={() => {
                             onShowDetails(true);
                             onSelectTab('share');

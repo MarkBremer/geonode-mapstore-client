@@ -67,6 +67,7 @@ const LayerDownloadActionButtonComponent = ({
     onClick,
     variant,
     size,
+    dataCy,
     data,
     nodeTypes,
     items,
@@ -113,6 +114,7 @@ const LayerDownloadActionButtonComponent = ({
         <Button
             variant={variant}
             size={size}
+            {...(dataCy ? { 'cy-data': dataCy } : {})}
             onClick={() => onClick()}
         >
             <Message msgId="gnviewer.exportData" />
@@ -153,7 +155,8 @@ export const FilterLayerActionButton = connect(
     onClick,
     variant,
     size,
-    layer
+    layer,
+    dataCy
 }) => {
     const active = !!layer?.layerFilter;
     if (!layer?.search) {
@@ -164,6 +167,7 @@ export const FilterLayerActionButton = connect(
             variant={variant}
             className={active ? 'ms-notification-circle warning' : ''}
             size={size}
+            {...(dataCy ? { 'cy-data': dataCy } : {})}
             onClick={() => onClick()}
         >
             <Message msgId="gnhome.filter" />

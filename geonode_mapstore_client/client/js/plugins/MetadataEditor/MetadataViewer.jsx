@@ -69,13 +69,15 @@ const PreviewButton = ({
     variant,
     pendingChanges,
     setPreview = () => {},
-    labelId = 'gnviewer.viewMetadata'
+    labelId = 'gnviewer.viewMetadata',
+    dataCy
 }) => {
     return (
         <Button
             size={size}
             variant={variant}
             disabled={pendingChanges}
+            {...(dataCy ? { 'cy-data': dataCy } : {})}
             onClick={() => setPreview(true)}
         >
             <Message msgId={labelId} />
