@@ -21,6 +21,53 @@ import MainEventView from '@js/components/MainEventView';
 import MainLoader from '@js/components/MainLoader';
 import { getMessageById } from '@mapstore/framework/utils/LocaleUtils';
 
+const metadataCyById = {
+    root_uuid: 'metadata-edit-uuid',
+    root_title: 'metadata-edit-title',
+    root_abstract: 'metadata-edit-abstract',
+    root_date: 'metadata-edit-date',
+    root_date_type: 'metadata-edit-publication-type',
+    root_category: 'metadata-edit-category',
+    root_hkeywords: 'metadata-edit-keywords',
+    root_language: 'metadata-edit-language',
+    root_license: 'metadata-edit-license',
+    root_attribution: 'metadata-edit-attribution',
+    root_regions: 'metadata-edit-regions',
+    root_data_quality_statement: 'metadata-edit-dqs',
+    root_restriction_code_type: 'metadata-edit-restrictions',
+    root_constraints_other: 'metadata-edit-constraints',
+    root_edition: 'metadata-edit-edition',
+    root_doi: 'metadata-edit-doi',
+    root_purpose: 'metadata-edit-purpose',
+    root_supplemental_information: 'metadata-edit-supplemental-information',
+    root_temporal_extent_start: 'metadata-edit-temporal-extent-start',
+    root_temporal_extent_end: 'metadata-edit-temporal-extent-end',
+    root_maintenance_frequency: 'metadata-edit-maintenance-frequency',
+    root_spatial_representation_type: 'metadata-edit-representation-type',
+    root_linkedresources: 'metadata-edit-related',
+    root_contacts: 'metadata-edit-contacts',
+    root_contacts_owner: 'metadata-edit-contacts-owner',
+    root_contacts_author: 'metadata-edit-contacts-metadata',
+    root_contacts_processor: 'metadata-edit-contacts-processor',
+    root_contacts_publisher: 'metadata-edit-contacts-publisher',
+    root_contacts_custodian: 'metadata-edit-contacts-custodian',
+    root_contacts_pointOfContact: 'metadata-edit-contacts-poc',
+    root_contacts_distributor: 'metadata-edit-contacts-distributor',
+    root_contacts_resource_user: 'metadata-edit-contacts-resource-user',
+    root_contacts_resource_provider: 'metadata-edit-contacts-resource-provider',
+    root_contacts_originator: 'metadata-edit-contacts-originator',
+    root_contacts_principal_investigator: 'metadata-edit-contacts-investigator'
+};
+
+function applyMetadataCyTags() {
+    Object.entries(metadataCyById).forEach(([id, cyData]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.setAttribute('cy-data', cyData);
+        }
+    });
+}
+
 function MetadataEditor({
     pk,
     loading,
@@ -85,6 +132,13 @@ function MetadataEditor({
             setExtraErrors({});
         };
     }, []);
+
+    useEffect(() => {
+        if (loading || error) {
+            return;
+        }
+        applyMetadataCyTags();
+    }, [loading, error, metadata, schema, uiSchema, updating]);
 
     function handleChange(formData) {
         setUpdateError(null);

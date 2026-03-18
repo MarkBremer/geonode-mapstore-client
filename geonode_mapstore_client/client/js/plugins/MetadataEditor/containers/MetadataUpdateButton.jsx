@@ -70,6 +70,7 @@ function MetadataUpdateButton({
         <Button
             size={size}
             variant={variant}
+            {...{ 'cy-data': 'metadata-edit-update' }}
             disabled={!pendingChanges || updating}
             className={pendingChanges ? 'ms-notification-circle warning' : ''}
             onClick={() => handleUpdate()}
