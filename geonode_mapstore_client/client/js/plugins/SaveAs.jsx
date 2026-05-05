@@ -122,7 +122,7 @@ function SaveAsButton({
             disabled={disabled}
             onClick={() => onClick([ resource ])}
             className={dirtyState ? 'ms-notification-circle warning' : ''}
-            {...(dataCy ? { 'cy-data': dataCy } : {})}
+            cy-data="btn-save-as"
         >
             <Message msgId="saveAs"/>
         </Button>
