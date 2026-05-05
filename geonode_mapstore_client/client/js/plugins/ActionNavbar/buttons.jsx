@@ -191,6 +191,7 @@ export const AddWidgetActionButton = connect(
             variant={variant}
             size={size}
             disabled={enabled}
+            cy-data="btn-dashboard-add-widget"
             onClick={() => onClick()}
         >
             <Message msgId="gnviewer.addWidget" />
