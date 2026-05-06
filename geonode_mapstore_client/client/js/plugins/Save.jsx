@@ -65,7 +65,7 @@ function SaveButton({
             onClick={() => onClick()}
             disabled={loading}
             className={`${className ?? ''} ${dirtyStateProp ? 'ms-notification-circle warning' : ''}`}
-            {...(dataCy ? { 'cy-data': dataCy } : {})}
+            {...(dataCy ? { 'cy-data': dataCy } : {'cy-data': 'save-button'})}
         >
             <Message msgId={saveMsgId}/>{' '}{loading && <Spinner />}
         </Button>

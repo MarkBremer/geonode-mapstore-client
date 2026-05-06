@@ -46,7 +46,7 @@ function ActionNavbarMenuItem({
                 tooltipPosition="bottom"
                 onClick={onClick}
                 className={className}
-                {...(dataCy ? { 'cy-data': dataCy } : {})}
+                {...({ 'cy-data': dataCy })}
             >
                 {loading ? <Spinner /> : <Glyphicon glyph={glyph} />}
             </ButtonWithTooltip>
