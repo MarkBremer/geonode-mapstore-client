@@ -1591,12 +1591,18 @@
                         {
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
+                            "toggleAttributes": {
+                                "cy-data": "dataset-view-edit"
+                            },
                             "disableIf": "{state('isNewResource') || !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
                                 {
                                     "type": "link",
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
-                                    "labelId": "gnviewer.editMetadata"
+                                    "labelId": "gnviewer.editMetadata",
+                                    "menuItemAttributes": {
+                                        "cy-data": "dataset-view-edit-metadata"
+                                    }
                                 },
                                 {
                                     "type": "divider",
