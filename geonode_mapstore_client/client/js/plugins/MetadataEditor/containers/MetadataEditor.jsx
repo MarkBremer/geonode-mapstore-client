@@ -158,7 +158,7 @@ function MetadataEditor({
     }
 
     return (
-        <div className="gn-metadata">
+        <div className="gn-metadata" cy-data="metadata-editor-form">
             <div className="gn-metadata-header">
                 {!isEmpty(updateError) && <Alert bsStyle={updateError.type} style={{ margin: '0.25rem 0' }}>
                     {updateError.message}

@@ -44,7 +44,7 @@ const Autocomplete = ({
     };
 
     return (
-        <div className={`form-group${className ? " " + className : ""}${!!error ? " " + "has-error" : ""}`}>
+        <div id={id} className={`form-group${className ? " " + className : ""}${!!error ? " " + "has-error" : ""}`}>
             {showLabel ? <label className="control-label" htmlFor={id}>
                 {title || name}
                 {required ? <span className="required">{' '}*</span> : null}
@@ -54,7 +54,6 @@ const Autocomplete = ({
             </label> : null}
             <SelectInfiniteScroll
                 {...props}
-                id={id}
                 value={getValue()}
                 valueKey={valueKey}
                 labelKey={labelKey}
