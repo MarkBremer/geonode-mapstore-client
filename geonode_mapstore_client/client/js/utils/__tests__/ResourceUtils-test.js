@@ -13,11 +13,11 @@ import set from 'lodash/set';
 import {
     resourceToLayerConfig,
     getResourcePermissions,
+    permissionsCompactToLists,
     availableResourceTypes,
     setAvailableResourceTypes,
     getGeoNodeMapLayers,
     toGeoNodeMapConfig,
-    compareBackgroundLayers,
     toMapStoreMapConfig,
     parseStyleName,
     canCopyResource,
@@ -28,6 +28,7 @@ import {
     ResourceTypes,
     FEATURE_INFO_FORMAT,
     isDocumentExternalSource,
+    hasDefaultDownload,
     getDownloadUrlInfo,
     getCataloguePath,
     getResourceWithLinkedResources,
@@ -37,8 +38,11 @@ import {
     canManageResourceOptions,
     canManageResourceSettings,
     canAccessPermissions,
-    formatResourceLinkUrl
+    formatResourceLinkUrl,
+    canEditMap
 } from '../ResourceUtils';
+
+import {setSupportedLocales} from '@mapstore/framework/utils/LocaleUtils';
 
 describe('Test Resource Utils', () => {
     it('should keep the wms params from the url if available', () => {
@@ -123,6 +127,53 @@ describe('Test Resource Utils', () => {
         });
     });
 
+    it('should disable current user entry when permission is manage', () => {
+        const compactPermissions = {
+            groups: [],
+            users: [
+                { id: 10, username: 'current.user', permissions: 'manage' }
+            ],
+            organizations: []
+        };
+        const user = { pk: 10 };
+
+        const result = permissionsCompactToLists(compactPermissions, user);
+
+        expect(result.entries).toEqual([
+            {
+                id: 10,
+                username: 'current.user',
+                permissions: 'manage',
+                type: 'user',
+                disabled: true,
+                name: 'current.user',
+                avatar: undefined
+            }
+        ]);
+    });
+
+    it('should not disable non-current-user or non-manage entries', () => {
+        const compactPermissions = {
+            groups: [],
+            users: [
+                { id: 10, username: 'current.user', permissions: 'view' },
+                { id: 11, username: 'other.user', permissions: 'manage' }
+            ],
+            organizations: [
+                { id: 100, title: 'Org 1', permissions: 'manage' }
+            ]
+        };
+        const user = { pk: 10 };
+
+        const result = permissionsCompactToLists(compactPermissions, user);
+
+        expect(result.entries.map(({ id, type, disabled }) => ({ id, type, disabled }))).toEqual([
+            { id: 10, type: 'user', disabled: true },
+            { id: 11, type: 'user', disabled: false },
+            { id: 100, type: 'group', disabled: false }
+        ]);
+    });
+
     it('should setAvailableResourceTypes', () => {
         setAvailableResourceTypes({ test: 'test data' });
 
@@ -141,11 +192,7 @@ describe('Test Resource Utils', () => {
                         url: 'geoserver/wms',
                         style: 'geonode:style',
                         availableStyles: [{ name: 'custom:style', title: 'My Style', format: 'css', metadata: {} }],
-                        extendedParams: {
-                            mapLayer: {
-                                pk: 10
-                            }
-                        },
+                        extendedParams: { pk: 1, mapLayer: { pk: 10 } },
                         opacity: 0.5,
                         visibility: false
                     }
@@ -180,11 +227,7 @@ describe('Test Resource Utils', () => {
                         url: 'geoserver/wms',
                         style: 'geonode:style',
                         availableStyles: [{ name: 'custom:style', title: 'My Style' }],
-                        extendedParams: {
-                            mapLayer: {
-                                pk: 10
-                            }
-                        }
+                        extendedParams: { pk: 1, mapLayer: { pk: 10 } }
                     }
                 ]
             }
@@ -198,9 +241,6 @@ describe('Test Resource Utils', () => {
         const geoNodeMapConfig = toGeoNodeMapConfig(data, mapState);
         expect(geoNodeMapConfig.maplayers.length).toBe(1);
     });
-    it('should be able to compare background layers with different ids', () => {
-        expect(compareBackgroundLayers({ type: 'osm', source: 'osm', id: '11' }, { type: 'osm', source: 'osm' })).toBe(true);
-    });
     it('should transform a resource to a mapstore map config', () => {
         const resource = {
             maplayers: [
@@ -211,7 +251,8 @@ describe('Test Resource Utils', () => {
                         msId: '03'
                     },
                     dataset: {
-                        pk: 1
+                        pk: 1,
+                        alternate: 'geonode:layer'
                     }
                 }
             ],
@@ -249,7 +290,7 @@ describe('Test Resource Utils', () => {
                 map: {
                     sources: {},
                     layers: [
-                        { type: 'osm', source: 'osm', group: 'background', visibility: true },
+                        { id: '01', type: 'osm', source: 'osm', group: 'background', visibility: true },
                         { id: '02', type: 'vector', features: [] },
                         {
                             id: '03',
@@ -257,18 +298,7 @@ describe('Test Resource Utils', () => {
                             name: 'geonode:layer',
                             url: 'geoserver/wms',
                             style: 'geonode:style01',
-                            extendedParams: {
-                                mapLayer: {
-                                    pk: 10,
-                                    current_style: 'geonode:style01',
-                                    extra_params: {
-                                        msId: '03'
-                                    },
-                                    dataset: {
-                                        pk: 1
-                                    }
-                                }
-                            }
+                            extendedParams: { pk: 1, alternate: 'geonode:layer', mapLayer: { pk: 10 } }
                         }
                     ]
                 }
@@ -285,7 +315,8 @@ describe('Test Resource Utils', () => {
                         msId: '03'
                     },
                     dataset: {
-                        pk: 1
+                        pk: 1,
+                        alternate: 'geonode:layer'
                     }
                 }
             ],
@@ -327,7 +358,7 @@ describe('Test Resource Utils', () => {
                 map: {
                     sources: {},
                     layers: [
-                        { type: 'osm', source: 'osm', group: 'background', visibility: true },
+                        { id: '01', type: 'osm', source: 'osm', group: 'background', visibility: true },
                         { id: '02', type: 'vector', features: [] },
                         {
                             id: '03',
@@ -335,18 +366,7 @@ describe('Test Resource Utils', () => {
                             name: 'geonode:layer',
                             url: 'geoserver/wms',
                             style: 'geonode:style01',
-                            extendedParams: {
-                                mapLayer: {
-                                    pk: 10,
-                                    current_style: 'geonode:style01',
-                                    extra_params: {
-                                        msId: '03'
-                                    },
-                                    dataset: {
-                                        pk: 1
-                                    }
-                                }
-                            },
+                            extendedParams: { pk: 1, alternate: 'geonode:layer', mapLayer: { pk: 10 } },
                             featureInfo: { template: "<div>test</div>", format: FEATURE_INFO_FORMAT }
                         }
                     ]
@@ -354,7 +374,7 @@ describe('Test Resource Utils', () => {
             }
         );
     });
-    it('should transform a resource to a mapstore map config and update backgrounds', () => {
+    it('should transform a resource to a mapstore map config and to not update backgrounds', () => {
         const resource = {
             maplayers: [
                 {
@@ -364,7 +384,8 @@ describe('Test Resource Utils', () => {
                         msId: '03'
                     },
                     dataset: {
-                        pk: 1
+                        pk: 1,
+                        alternate: 'geonode:layer'
                     }
                 }
             ],
@@ -410,12 +431,11 @@ describe('Test Resource Utils', () => {
                     sources: {},
                     layers: [
                         {
-                            name: 'OpenTopoMap',
-                            provider: 'OpenTopoMap',
-                            source: 'OpenTopoMap',
-                            type: 'tileprovider',
-                            visibility: true,
-                            group: 'background'
+                            id: '01',
+                            type: 'osm',
+                            source: 'osm',
+                            group: 'background',
+                            visibility: true
                         },
                         { id: '02', type: 'vector', features: [] },
                         {
@@ -424,18 +444,7 @@ describe('Test Resource Utils', () => {
                             name: 'geonode:layer',
                             url: 'geoserver/wms',
                             style: 'geonode:style01',
-                            extendedParams: {
-                                mapLayer: {
-                                    pk: 10,
-                                    current_style: 'geonode:style01',
-                                    extra_params: {
-                                        msId: '03'
-                                    },
-                                    dataset: {
-                                        pk: 1
-                                    }
-                                }
-                            }
+                            extendedParams: { pk: 1, alternate: 'geonode:layer', mapLayer: { pk: 10 } }
                         }
                     ]
                 }
@@ -492,8 +501,151 @@ describe('Test Resource Utils', () => {
         const mapStoreMapConfig = toMapStoreMapConfig(resource, baseConfig);
         expect(mapStoreMapConfig).toBeTruthy();
         const layers = mapStoreMapConfig.map.layers;
-        expect(layers.length).toBe(2);
-        expect(layers[1].featureInfo).toEqual({ template, format: FEATURE_INFO_FORMAT });
+        expect(layers.length).toBe(1);
+        expect(layers[0].featureInfo).toEqual({ template, format: FEATURE_INFO_FORMAT });
+    });
+
+    it('getGeoNodeMapLayers omits pk for fresh-added layers (no maplayer.pk yet)', () => {
+        const data = {
+            map: {
+                layers: [{
+                    id: '03',
+                    type: 'wms',
+                    name: 'geonode:layer',
+                    extendedParams: { pk: 1 }
+                }]
+            }
+        };
+        const mapLayers = getGeoNodeMapLayers(data);
+        expect(mapLayers.length).toBe(1);
+        expect(mapLayers[0].pk).toBe(undefined);
+        expect(mapLayers[0].name).toBe('geonode:layer');
+    });
+
+    it('getGeoNodeMapLayers filters out layers without extendedParams.pk', () => {
+        const data = {
+            map: {
+                layers: [
+                    { id: '01', type: 'osm', source: 'osm' },
+                    { id: '02', type: 'vector', features: [] },
+                    { id: '03', type: 'wms', name: 'remote:wms', extendedParams: {} }
+                ]
+            }
+        };
+        expect(getGeoNodeMapLayers(data)).toEqual([]);
+    });
+
+    it('toGeoNodeMapConfig cleans up extendedParams to { pk, alternate, mapLayer: { pk } } and drops other keys', () => {
+        const data = {
+            map: {
+                layers: [{
+                    id: '03',
+                    type: 'wms',
+                    name: 'geonode:layer',
+                    extendedParams: {
+                        pk: 1,
+                        alternate: 'geonode:layer',
+                        mapLayer: { pk: 10 },
+                        defaultStyle: { name: 'foo', title: 'bar' },
+                        unrelated: 'should be dropped'
+                    }
+                }]
+            }
+        };
+        const result = toGeoNodeMapConfig(data);
+        expect(result.data.map.layers[0].extendedParams).toEqual({
+            pk: 1,
+            alternate: 'geonode:layer',
+            mapLayer: { pk: 10 }
+        });
+    });
+
+    it('toGeoNodeMapConfig cleanup omits mapLayer for fresh-add layers', () => {
+        const data = {
+            map: {
+                layers: [{
+                    id: '03',
+                    type: 'wms',
+                    name: 'geonode:layer',
+                    extendedParams: { pk: 1, alternate: 'geonode:layer' }
+                }]
+            }
+        };
+        const result = toGeoNodeMapConfig(data);
+        expect(result.data.map.layers[0].extendedParams).toEqual({ pk: 1, alternate: 'geonode:layer' });
+    });
+
+    it('toMapStoreMapConfig removes geonode layers without a matching maplayer (orphans)', () => {
+        const resource = {
+            maplayers: [],
+            data: {
+                map: {
+                    layers: [
+                        { id: '01', type: 'osm', source: 'osm', group: 'background', visibility: true },
+                        {
+                            id: '03',
+                            type: 'wms',
+                            name: 'geonode:layer',
+                            extendedParams: { pk: 1, mapLayer: { pk: 10 } }
+                        }
+                    ]
+                }
+            }
+        };
+        const result = toMapStoreMapConfig(resource, { map: { layers: [] } });
+        expect(result.map.layers).toEqual([
+            { id: '01', type: 'osm', source: 'osm', group: 'background', visibility: true }
+        ]);
+    });
+
+    it('toMapStoreMapConfig falls back to layer.extendedParams.pk when mapLayer.dataset is missing', () => {
+        const resource = {
+            maplayers: [{
+                pk: 10,
+                extra_params: { msId: '03' }
+            }],
+            data: {
+                map: {
+                    layers: [{
+                        id: '03',
+                        type: 'wms',
+                        name: 'geonode:layer',
+                        extendedParams: { pk: 1, alternate: 'geonode:layer', mapLayer: { pk: 10 } }
+                    }]
+                }
+            }
+        };
+        const result = toMapStoreMapConfig(resource, { map: { layers: [] } });
+        expect(result.map.layers[0].extendedParams).toEqual({
+            pk: 1,
+            alternate: 'geonode:layer',
+            mapLayer: { pk: 10 }
+        });
+    });
+
+    it('toGeoNodeMapConfig → toMapStoreMapConfig round-trip preserves the extendedParams shape', () => {
+        const data = {
+            map: {
+                layers: [{
+                    id: '03',
+                    type: 'wms',
+                    name: 'geonode:layer',
+                    style: 'geonode:style',
+                    extendedParams: { pk: 1, alternate: 'geonode:layer', mapLayer: { pk: 10 } }
+                }]
+            }
+        };
+        const saved = toGeoNodeMapConfig(data);
+        const resource = {
+            ...saved,
+            maplayers: saved.maplayers.map(ml => ({ ...ml, dataset: { pk: 1, alternate: 'geonode:layer' } }))
+        };
+        const reloaded = toMapStoreMapConfig(resource, { map: { layers: [] } });
+        expect(reloaded.map.layers[0].extendedParams).toEqual({
+            pk: 1,
+            alternate: 'geonode:layer',
+            mapLayer: { pk: 10 }
+        });
     });
 
     it('should parse style name into accepted format', () => {
@@ -787,31 +939,77 @@ describe('Test Resource Utils', () => {
         resource = {...resource, resource_type: "dataset"};
         expect(isDocumentExternalSource(resource)).toBeFalsy();
     });
+    it('test hasDefaultDownload', () => {
+        expect(hasDefaultDownload(null)).toBeFalsy();
+        expect(hasDefaultDownload(undefined)).toBeFalsy();
+        expect(hasDefaultDownload({})).toBeFalsy();
+        expect(hasDefaultDownload({ download_urls: null })).toBeFalsy();
+        expect(hasDefaultDownload({ download_urls: [] })).toBeFalsy();
+        expect(hasDefaultDownload({ download_urls: [{ url: '/a', "default": false }] })).toBeFalsy();
+        expect(hasDefaultDownload({ download_urls: [{ url: '/a' }] })).toBeFalsy();
+        expect(hasDefaultDownload({ download_urls: [{ url: '/a', "default": true }] })).toBeTruthy();
+        expect(hasDefaultDownload({ download_urls: [{ url: '/a' }, { url: '/b', "default": true }] })).toBeTruthy();
+    });
     it('test getDownloadUrlInfo', () => {
-        const downloadData = {url: "/someurl", ajax_safe: true };
+        const downloadData = { url: "/someurl", ajax_safe: true };
 
-        // EXTERNAL SOURCE
+        // EXTERNAL SOURCE (document, remote) → href
         let resource = { download_urls: [downloadData], href: "/somehref", resource_type: "document", sourcetype: "REMOTE"};
         let downloadInfo = getDownloadUrlInfo(resource);
         expect(downloadInfo.url).toBe("/somehref");
         expect(downloadInfo.ajaxSafe).toBeFalsy();
 
-        // AJAX SAFE
-        resource = { download_urls: [downloadData]};
+        // Non-dataset, single download_url → use that entry (length === 1 fallback)
+        resource = { download_urls: [downloadData] };
         downloadInfo = getDownloadUrlInfo(resource);
         expect(downloadInfo.url).toBe(downloadData.url);
         expect(downloadInfo.ajaxSafe).toBeTruthy();
 
-        // HREF
-        resource = {href: "/someurl"};
+        // HREF fallback (no download_urls)
+        resource = { href: "/someurl" };
         downloadInfo = getDownloadUrlInfo(resource);
         expect(downloadInfo.url).toBe(resource.href);
         expect(downloadInfo.ajaxSafe).toBeFalsy();
 
-        // NOT AJAX SAFE
-        resource = {download_urls: [{...downloadData, ajax_safe: false}]};
+        // Non-dataset, single entry, not ajax safe
+        resource = { download_urls: [{ ...downloadData, ajax_safe: false }] };
         downloadInfo = getDownloadUrlInfo(resource);
         expect(downloadInfo.url).toBe(downloadData.url);
+        expect(downloadInfo.ajaxSafe).toBeFalsy();
+
+        // Dataset with default download → url and ajaxSafe from default entry
+        resource = { resource_type: ResourceTypes.DATASET, download_urls: [{ ...downloadData, "default": true }] };
+        downloadInfo = getDownloadUrlInfo(resource);
+        expect(downloadInfo.url).toBe(downloadData.url);
+        expect(downloadInfo.ajaxSafe).toBeTruthy();
+
+        // Dataset with download_urls but no default → url null, ajaxSafe false
+        resource = { resource_type: ResourceTypes.DATASET, download_urls: [{ url: '/asset', "default": false }] };
+        downloadInfo = getDownloadUrlInfo(resource);
+        expect(downloadInfo.url).toBeFalsy();
+        expect(downloadInfo.ajaxSafe).toBeFalsy();
+
+        // Dataset with multiple entries, one default → use default
+        resource = {
+            resource_type: ResourceTypes.DATASET,
+            download_urls: [
+                { url: '/asset1', "default": false },
+                { url: '/dataset', "default": true, ajax_safe: true }
+            ]
+        };
+        downloadInfo = getDownloadUrlInfo(resource);
+        expect(downloadInfo.url).toBe('/dataset');
+        expect(downloadInfo.ajaxSafe).toBeTruthy();
+
+        // Non-dataset with multiple entries, one default → use default
+        resource = {
+            download_urls: [
+                { url: '/other', "default": false },
+                { url: '/default', "default": true, ajax_safe: false }
+            ]
+        };
+        downloadInfo = getDownloadUrlInfo(resource);
+        expect(downloadInfo.url).toBe('/default');
         expect(downloadInfo.ajaxSafe).toBeFalsy();
     });
     it('test getCataloguePath', () => {
@@ -1075,5 +1273,310 @@ describe('Test Resource Utils', () => {
     it('formatResourceLinkUrl', () => {
         expect(formatResourceLinkUrl({ uuid: '123' })).toContain('/catalogue/uuid/123');
         expect(formatResourceLinkUrl({ pk: '123' })).toNotContain('/catalogue/uuid/123');
+    });
+    describe('canEditMap', () => {
+        it('existing map with edit permission', () => {
+            const gnresourceState = {
+                type: ResourceTypes.MAP,
+                data: {
+                    perms: ['view_resourcebase', 'change_resourcebase']
+                },
+                isNew: false
+            };
+            const result = canEditMap(gnresourceState, { isNewCheck: false });
+            expect(result).toBeTruthy();
+        });
+        it('new map without edit permission but marked as new', () => {
+            const gnresourceState = {
+                type: ResourceTypes.MAP,
+                data: {
+                    perms: ['view_resourcebase']
+                },
+                isNew: true
+            };
+            const result = canEditMap(gnresourceState, { isNewCheck: true });
+            expect(result).toBeTruthy();
+        });
+        it('map without edit permission and not new', () => {
+            const gnresourceState = {
+                type: ResourceTypes.MAP,
+                data: {
+                    perms: ['view_resourcebase']
+                },
+                isNew: false
+            };
+            const result = canEditMap(gnresourceState, { isNewCheck: false });
+            expect(result).toBeFalsy();
+        });
+        it('non map type should not be editable when only MAP is allowed', () => {
+            const gnresourceState = {
+                type: ResourceTypes.DATASET,
+                data: {
+                    perms: ['change_resourcebase']
+                },
+                isNew: true
+            };
+            const result = canEditMap(gnresourceState, { isNewCheck: true });
+            expect(result).toBeFalsy();
+        });
+        it('dataset should be editable when included in resourceType and has edit permission', () => {
+            const gnresourceState = {
+                type: ResourceTypes.DATASET,
+                data: {
+                    perms: ['view_resourcebase', 'change_resourcebase']
+                },
+                isNew: false
+            };
+            const result = canEditMap(gnresourceState, { isNewCheck: false, resourceTypes: [ResourceTypes.MAP, ResourceTypes.DATASET] });
+            expect(result).toBeTruthy();
+        });
+        it('new dataset without edit permission but marked as new and included in resourceType', () => {
+            const gnresourceState = {
+                type: ResourceTypes.DATASET,
+                data: {
+                    perms: ['view_resourcebase']
+                },
+                isNew: true
+            };
+            const result = canEditMap(gnresourceState, { isNewCheck: true, resourceTypes: [ResourceTypes.MAP, ResourceTypes.DATASET] });
+            expect(result).toBeTruthy();
+        });
+        it('dataset with title in multilanguage', () => {
+            let supportedLocales = {
+                "en": {
+                    code: "en-US",
+                    description: "English"
+                },
+                "it": {
+                    code: "it-IT",
+                    description: "Italiano"
+                },
+                "fr": {
+                    code: "fr-FR",
+                    description: "Français"
+                }
+            };
+            setSupportedLocales(supportedLocales);
+            const newLayer = resourceToLayerConfig({
+                alternate: 'geonode:layer_numtilangue',
+                title: 'Default title',
+                title_en: 'Layer title',
+                title_it: 'Titolo del layer',
+                title_fr: 'Titre de la couche',
+                perms: [],
+                pk: 1
+            });
+            expect(newLayer.title).toEqual({
+                'en-US': 'Layer title',
+                'it-IT': 'Titolo del layer',
+                'fr-FR': 'Titre de la couche',
+                'default': 'Default title'
+            });
+        });
+    });
+    describe('alternate is propagated through extendedParams', () => {
+        // parseDevHostname references __DEVTOOLS__ (a webpack DefinePlugin global
+        // not declared in the karma test config); the 3dtiles/cog/flatgeobuf
+        // branches call it, so define it here to avoid ReferenceError
+        let prevDevtools;
+        before(() => {
+            prevDevtools = window.__DEVTOOLS__;
+            window.__DEVTOOLS__ = false;
+        });
+        after(() => {
+            window.__DEVTOOLS__ = prevDevtools;
+        });
+
+        it('resourceToLayerConfig (default WMS) includes alternate in extendedParams', () => {
+            const newLayer = resourceToLayerConfig({
+                alternate: 'geonode:layer_name',
+                links: [{
+                    extension: 'html',
+                    link_type: 'OGC:WMS',
+                    name: 'OGC WMS Service',
+                    mime: 'text/html',
+                    url: '/geoserver/wms'
+                }],
+                title: 'Layer title',
+                perms: [],
+                pk: 1
+            });
+            expect(newLayer.extendedParams).toEqual({ pk: 1, alternate: 'geonode:layer_name' });
+        });
+
+        it('resourceToLayerConfig (3dtiles) includes alternate in extendedParams', () => {
+            const newLayer = resourceToLayerConfig({
+                alternate: 'geonode:tileset',
+                subtype: '3dtiles',
+                links: [{ extension: '3dtiles', url: '/tileset.json' }],
+                title: 'Tileset',
+                perms: [],
+                pk: 2
+            });
+            expect(newLayer.extendedParams).toEqual({ pk: 2, alternate: 'geonode:tileset' });
+        });
+
+        it('resourceToLayerConfig (cog) includes alternate in extendedParams', () => {
+            const newLayer = resourceToLayerConfig({
+                alternate: 'geonode:cog_layer',
+                subtype: 'cog',
+                links: [{ extension: 'cog', url: '/raster.tif' }],
+                title: 'COG',
+                perms: [],
+                pk: 3
+            });
+            expect(newLayer.extendedParams).toEqual({ pk: 3, alternate: 'geonode:cog_layer' });
+        });
+
+        it('resourceToLayerConfig (flatgeobuf) includes alternate in extendedParams', () => {
+            const newLayer = resourceToLayerConfig({
+                alternate: 'geonode:fgb_layer',
+                subtype: 'flatgeobuf',
+                attribute_set: [],
+                links: [{ extension: 'flatgeobuf', url: '/data.fgb' }],
+                title: 'FGB',
+                perms: [],
+                pk: 4
+            });
+            expect(newLayer.extendedParams).toEqual({ pk: 4, alternate: 'geonode:fgb_layer' });
+        });
+
+        it('resourceToLayerConfig (arcgis) includes alternate in extendedParams', () => {
+            const newLayer = resourceToLayerConfig({
+                alternate: 'remoteWorkspace:1',
+                title: 'Layer title',
+                perms: [],
+                links: [{
+                    extension: 'html',
+                    link_type: 'image',
+                    mime: 'text/html',
+                    name: 'ArcGIS REST ImageServer',
+                    url: '/MapServer'
+                }],
+                pk: 5,
+                ptype: 'gxp_arcrestsource'
+            });
+            expect(newLayer.extendedParams).toEqual({ pk: 5, alternate: 'remoteWorkspace:1' });
+        });
+
+        it('getGeoNodeMapLayers prefers extendedParams.alternate over layer.name', () => {
+            const data = {
+                map: {
+                    layers: [{
+                        id: '03',
+                        type: 'wms',
+                        name: 'fallback:name',
+                        extendedParams: { pk: 1, alternate: 'geonode:from_alternate', mapLayer: { pk: 10 } }
+                    }]
+                }
+            };
+            const mapLayers = getGeoNodeMapLayers(data);
+            expect(mapLayers.length).toBe(1);
+            expect(mapLayers[0].name).toBe('geonode:from_alternate');
+        });
+
+        it('getGeoNodeMapLayers falls back to layer.name when extendedParams.alternate is missing', () => {
+            const data = {
+                map: {
+                    layers: [{
+                        id: '03',
+                        type: 'wms',
+                        name: 'fallback:name',
+                        extendedParams: { pk: 1 }
+                    }]
+                }
+            };
+            const mapLayers = getGeoNodeMapLayers(data);
+            expect(mapLayers[0].name).toBe('fallback:name');
+        });
+
+        it('toMapStoreMapConfig sets alternate from mapLayer.dataset.alternate (preferred)', () => {
+            const resource = {
+                maplayers: [{
+                    pk: 10,
+                    extra_params: { msId: '03' },
+                    dataset: { pk: 1, alternate: 'dataset:alternate' }
+                }],
+                data: {
+                    map: {
+                        layers: [{
+                            id: '03',
+                            type: 'wms',
+                            name: 'layer:name',
+                            extendedParams: { pk: 1, alternate: 'stale:alternate', mapLayer: { pk: 10 } }
+                        }]
+                    }
+                }
+            };
+            const result = toMapStoreMapConfig(resource, { map: { layers: [] } });
+            expect(result.map.layers[0].extendedParams.alternate).toBe('dataset:alternate');
+        });
+
+        it('toMapStoreMapConfig falls back to layer.extendedParams.alternate when dataset.alternate is missing', () => {
+            const resource = {
+                maplayers: [{
+                    pk: 10,
+                    extra_params: { msId: '03' },
+                    dataset: { pk: 1 }
+                }],
+                data: {
+                    map: {
+                        layers: [{
+                            id: '03',
+                            type: 'wms',
+                            name: 'layer:name',
+                            extendedParams: { pk: 1, alternate: 'stored:alternate', mapLayer: { pk: 10 } }
+                        }]
+                    }
+                }
+            };
+            const result = toMapStoreMapConfig(resource, { map: { layers: [] } });
+            expect(result.map.layers[0].extendedParams.alternate).toBe('stored:alternate');
+        });
+
+        it('toMapStoreMapConfig falls back to layer.name when neither alternate is available', () => {
+            const resource = {
+                maplayers: [{
+                    pk: 10,
+                    extra_params: { msId: '03' },
+                    dataset: { pk: 1 }
+                }],
+                data: {
+                    map: {
+                        layers: [{
+                            id: '03',
+                            type: 'wms',
+                            name: 'layer:name',
+                            extendedParams: { pk: 1, mapLayer: { pk: 10 } }
+                        }]
+                    }
+                }
+            };
+            const result = toMapStoreMapConfig(resource, { map: { layers: [] } });
+            expect(result.map.layers[0].extendedParams.alternate).toBe('layer:name');
+        });
+
+        it('round-trip via toGeoNodeMapConfig → toMapStoreMapConfig preserves alternate', () => {
+            const data = {
+                map: {
+                    layers: [{
+                        id: '03',
+                        type: 'wms',
+                        name: 'layer:name',
+                        style: 'geonode:style',
+                        extendedParams: { pk: 1, alternate: 'geonode:roundtrip', mapLayer: { pk: 10 } }
+                    }]
+                }
+            };
+            const saved = toGeoNodeMapConfig(data);
+            // maplayer.name should come from extendedParams.alternate
+            expect(saved.maplayers[0].name).toBe('geonode:roundtrip');
+            const resource = {
+                ...saved,
+                maplayers: saved.maplayers.map(ml => ({ ...ml, dataset: { pk: 1, alternate: 'geonode:roundtrip' } }))
+            };
+            const reloaded = toMapStoreMapConfig(resource, { map: { layers: [] } });
+            expect(reloaded.map.layers[0].extendedParams.alternate).toBe('geonode:roundtrip');
+        });
     });
 });

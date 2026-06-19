@@ -37,18 +37,23 @@ import {
     SET_DEFAULT_VIEWER_PLUGINS,
     SET_SELECTED_LAYER,
     UPDATE_LAYER_DATASET,
-    SET_SELECTED_LAYER_DATASET
+    SET_SELECTED_LAYER_DATASET,
+    UPDATE_RESOURCE_EXTENT_LOADING,
+    SET_DATASET_EDIT_PERMISSIONS_ERROR
 } from '@js/actions/gnresource';
 import {
     cleanCompactPermissions,
     getGeoLimitsFromCompactPermissions,
-    getResourceAdditionalProperties
+    getResourceAdditionalProperties,
+    parseMapLayerData,
+    ResourceTypes
 } from '@js/utils/ResourceUtils';
 
 const defaultState = {
     selectedLayerPermissions: [],
     data: {},
-    permissions: []
+    permissions: [],
+    datasetEditPermissionError: null
 };
 
 function gnresource(state = defaultState, action) {
@@ -85,10 +90,15 @@ function gnresource(state = defaultState, action) {
             updatedResource.linkedResources = linkedResources;
         }
 
+        // Persist the dataset config payload in its own slice field so it
+        // survives same-resource page transitions, where the SET_RESOURCE
+        // reducer otherwise strips `data` from `state.gnresource.data`.
+        const isDataset = state.type === ResourceTypes.DATASET;
         return {...state,
             error: null,
             initialResource: { ...actionData },
             data: updatedResource,
+            ...(isDataset && { mapLayerData: parseMapLayerData(data) }),
             loading: false,
             isNew: false
         };
@@ -178,6 +188,12 @@ function gnresource(state = defaultState, action) {
         };
     }
 
+    case UPDATE_RESOURCE_EXTENT_LOADING: {
+        return {
+            ...state,
+            loadingUpdateResourceExtent: action.loading
+        };
+    }
     case ENABLE_MAP_THUMBNAIL_VIEWER: {
         return {
             ...state,
@@ -286,6 +302,11 @@ function gnresource(state = defaultState, action) {
                     return layer;
                 })
             }
+        };
+    case SET_DATASET_EDIT_PERMISSIONS_ERROR:
+        return {
+            ...state,
+            datasetEditPermissionError: action.datasetEditPermissionError
         };
     default:
         return state;

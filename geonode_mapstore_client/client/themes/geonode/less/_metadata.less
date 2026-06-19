@@ -156,8 +156,8 @@
     overflow: auto;
     flex: 1;
     .gn-metadata-group-title {
-        font-size: 1.5rem;
-        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        padding: 0 0.75rem;
     }
     .gn-metadata-group:not(.gn-metadata-group-view) {
         max-width: 60ch;
@@ -169,11 +169,14 @@
     .field {
         padding: 0 0.75rem;
     }
-
+    hr {
+        margin-top: 0;
+    }
     .field-object-properties {
         padding: 0.75rem 0;
         border: 1px solid transparent;
-        border-radius: 4px;
+        // use theme border radius to align with MapStore
+        border-radius: @border-radius-base;
         label {
             font-weight: normal;
             font-size: @font-size-sm;
@@ -190,6 +193,7 @@
         grid-template-columns: max-content auto;
         padding: 0 0.75rem;
         dt {
+            min-width: 200px;
             padding: 0.25rem;
             text-align: right;
             grid-column-start: 1;
@@ -227,7 +231,7 @@
         padding: 0;
         padding: 0.5rem;
         border: 1px solid transparent;
-        border-radius: 4px;
+        border-radius: @border-radius-base;
         > .field {
             padding: 0;
             flex: 1;
@@ -291,4 +295,10 @@
     .gn-footer {
         position: static;
     }
+}
+
+.multilang-widget .multilang-widget-buttons {
+    margin: 8px 10px 0 0;
+    display: flex;
+    gap: 5px;
 }

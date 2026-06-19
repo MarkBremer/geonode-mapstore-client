@@ -24,16 +24,15 @@ import { getProcessErrorInfo } from '@js/utils/ErrorUtils';
 import { error } from '@mapstore/framework/actions/notifications';
 
 /**
+* @module ExecutionTracker
+*/
+
+/**
  * Plugin that monitors async executions embedded in resources and
  * triggers the executions API using the existing resourceservice epics.
  *
  * It reads `resources[*].executions` checks for the executions, if found it
  * dispatches `startAsyncProcess({ resource, output, processType })` once per execution.
- *
- * @param {Object} user - The user object
- * @param {Function} onStartAsyncProcess - The function to start an async process
- * @param {Object} resourceData - The resource data (details page)
- * @param {Array} processes - The processes to track
  */
 function ExecutionTracker({
     user,

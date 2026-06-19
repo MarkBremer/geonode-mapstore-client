@@ -20,7 +20,8 @@ import {
     getUploadFileName,
     getUploadProperty,
     getSize,
-    getExceedingFileSize
+    getExceedingFileSize,
+    remoteTypeByUrl
 } from '../UploadUtils';
 
 const supportedFiles = [
@@ -50,6 +51,14 @@ const supportedFiles = [
 ];
 
 describe('Test Upload Utils', () => {
+    it('remoteTypeByUrl', () => {
+        expect(remoteTypeByUrl('http://example.com/data.tif', '')).toBe('cog');
+        expect(remoteTypeByUrl('http://example.com/data.tiff', '')).toBe('cog');
+        expect(remoteTypeByUrl('http://example.com/data.fgb', '')).toBe('flatgeobuf');
+        expect(remoteTypeByUrl('http://example.com/data.flatgeobuf', '')).toBe('flatgeobuf');
+        expect(remoteTypeByUrl('http://example.com/data.csv', 'csv')).toBe('csv');
+        expect(remoteTypeByUrl('http://example.com/data.png', 'png')).toBe('png');
+    });
     it('hasExtensionInUrl', () => {
         expect(hasExtensionInUrl()).toBe(false);
         expect(hasExtensionInUrl({ url: 'http://path/filename.png' })).toBe(true);
@@ -194,8 +203,8 @@ describe('Test Upload Utils', () => {
                 ext: [ 'sld' ],
                 files: { sld: {} },
                 supported: true,
-                ready: false,
-                missingExtensions: [ '*' ]
+                ready: true,
+                missingExtensions: []
             }
         ]);
         expect(validateFileResourceUploads([
@@ -222,6 +231,38 @@ describe('Test Upload Utils', () => {
                 missingExtensions: []
             }
         ]);
+    });
+    it('validateRemoteResourceUploads sets COG type for .tif/.tiff URLs', () => {
+        const uploads = [
+            { url: 'http://example.com/data.tif', remoteType: '', type: 'remote' },
+            { url: 'http://example.com/data.TIFF', remoteType: 'wms', type: 'remote' }
+        ];
+        const remoteTypes = [{ value: 'cog' }];
+        const [first, second] = validateRemoteResourceUploads(uploads, { remoteTypes });
+
+        expect(first.remoteType).toBe('cog');
+        expect(first.supported).toBe(true);
+        expect(first.ready).toBe(true);
+
+        expect(second.remoteType).toBe('cog');
+        expect(second.supported).toBe(true);
+        expect(second.ready).toBe(true);
+    });
+    it('validateRemoteResourceUploads sets FlatGeobuf type for .fgb/.flatgeobuf URLs', () => {
+        const uploads = [
+            { url: 'http://example.com/data.fgb', remoteType: '', type: 'remote' },
+            { url: 'http://example.com/data.flatgeobuf', remoteType: 'wms', type: 'remote' }
+        ];
+        const remoteTypes = [{ value: 'flatgeobuf' }];
+        const [first, second] = validateRemoteResourceUploads(uploads, { remoteTypes });
+
+        expect(first.remoteType).toBe('flatgeobuf');
+        expect(first.supported).toBe(true);
+        expect(first.ready).toBe(true);
+
+        expect(second.remoteType).toBe('flatgeobuf');
+        expect(second.supported).toBe(true);
+        expect(second.ready).toBe(true);
     });
     it('validateRemoteResourceUploads', () => {
         expect(validateRemoteResourceUploads()).toEqual([]);

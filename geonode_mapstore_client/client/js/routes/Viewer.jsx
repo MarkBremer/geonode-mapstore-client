@@ -18,13 +18,14 @@ import PluginsContainer from '@mapstore/framework/components/plugins/PluginsCont
 import { requestResourceConfig, requestNewResourceConfig } from '@js/actions/gnresource';
 import MetaTags from '@js/components/MetaTags';
 import MainEventView from '@js/components/MainEventView';
-import ViewerLayout from '@js/components/ViewerLayout';
 import { createShallowSelector } from '@mapstore/framework/utils/ReselectUtils';
 import { getResourceImageSource } from '@js/utils/ResourceUtils';
 import useModulePlugins from '@mapstore/framework/hooks/useModulePlugins';
 import { getPlugins } from '@mapstore/framework/utils/ModulePluginsUtils';
+import MapViewerLayout from '@mapstore/framework/containers/MapViewerLayout';
 
 const urlQuery = url.parse(window.location.href, true).query;
+const DATASET_VIEWER = 'dataset_viewer';
 
 const ConnectedPluginsContainer = connect(
     createShallowSelector(
@@ -55,6 +56,15 @@ function getPluginsConfiguration(name, pluginsConfig) {
     return pluginsConfig[name] || DEFAULT_PLUGINS_CONFIG;
 }
 
+function getPluginName(name, options = {}) {
+    const { hasNoGeometry } = options;
+    const isDatasetViewer = name === DATASET_VIEWER;
+    if (isDatasetViewer && typeof hasNoGeometry === 'boolean' && hasNoGeometry) {
+        return `${name}_non_spatial`;
+    }
+    return name;
+}
+
 function ViewerRoute({
     name,
     pluginsConfig: propPluginsConfig,
@@ -69,11 +79,19 @@ function ViewerRoute({
     resourceType,
     loadingConfig,
     configError,
-    loaderStyle
+    loaderStyle,
+    loading: isResourceLoading,
+    datasetEditPermissionError
 }) {
-
     const { pk } = match.params || {};
-    const pluginsConfig = getPluginsConfiguration(name, propPluginsConfig);
+
+    // determine the plugins name based on the view, resource type and geometry field
+    const pluginsName = getPluginName(name, { hasNoGeometry: resource?.hasNoGeometry });
+    const shouldInitPlugins = !isResourceLoading && (resource || name === DATASET_VIEWER);
+    // get the plugins configuration
+    const pluginsConfig = shouldInitPlugins
+        ? getPluginsConfiguration(pluginsName, propPluginsConfig)
+        : DEFAULT_PLUGINS_CONFIG;
     const pluginsCfgLength = pluginsConfig?.length;
 
     const { plugins: loadedPlugins, pending } = useModulePlugins({
@@ -108,7 +126,7 @@ function ViewerRoute({
         }
     }, [pluginLoading, pk]);
 
-    const loading = loadingConfig || pluginLoading;
+    const isLoading = isResourceLoading || loadingConfig || pluginLoading;
     const parsedPlugins = useMemo(() => ({ ...loadedPlugins, ...getPlugins(plugins) }), [loadedPlugins]);
     const Loader = loaderComponent;
     const className = `page-${resourceType || name}-viewer page-viewer`;
@@ -122,18 +140,18 @@ function ViewerRoute({
                 contentURL={resource?.detail_url}
                 content={resource?.abstract}
             />}
-            <ConnectedPluginsContainer
+            {!isLoading ? <ConnectedPluginsContainer
                 key={className}
                 id={className}
                 className={className}
-                component={ViewerLayout}
+                component={MapViewerLayout}
                 pluginsConfig={pluginsConfig}
                 plugins={parsedPlugins}
                 allPlugins={plugins}
                 params={params}
-            />
-            {loading && Loader && <Loader style={loaderStyle}/>}
-            {configError && <MainEventView msgId={configError}/>}
+            /> : null}
+            {isLoading && Loader && <Loader style={loaderStyle}/>}
+            {(configError || datasetEditPermissionError) && <MainEventView msgId={configError || datasetEditPermissionError}/>}
         </>
     );
 }
@@ -147,12 +165,16 @@ const ConnectedViewerRoute = connect(
         state => state?.gnresource?.data,
         state => state?.gnsettings?.siteName || 'GeoNode',
         state => state?.gnresource?.loadingResourceConfig,
-        state => state?.gnresource?.configError
-    ], (resource, siteName, loadingConfig, configError) => ({
+        state => state?.gnresource?.configError,
+        state => state?.gnresource?.loading,
+        state => state?.gnresource?.datasetEditPermissionError
+    ], (resource, siteName, loadingConfig, configError, loading, datasetEditPermissionError) => ({
         resource,
         siteName,
         loadingConfig,
-        configError
+        configError,
+        loading,
+        datasetEditPermissionError
     })),
     {
         onUpdate: requestResourceConfig,

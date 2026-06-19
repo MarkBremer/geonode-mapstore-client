@@ -17,6 +17,18 @@ export const hasExtensionInUrl = (remoteResource) => {
     return !isEmpty(ext);
 };
 
+export const remoteTypeByUrl = (url, defaultType) => {
+    const urlLowerCase = url.toLowerCase();
+    const fileTypeMaps = {
+        '.tif': 'cog',
+        '.tiff': 'cog',
+        '.fgb': 'flatgeobuf',
+        '.flatgeobuf': 'flatgeobuf'
+    };
+    const matchedType = Object.keys(fileTypeMaps).find(extension => urlLowerCase.endsWith(extension));
+    return matchedType ? fileTypeMaps[matchedType] : defaultType;
+};
+
 export const isNotSupported = (remoteResource) => !isNil(remoteResource?.supported) && !remoteResource?.supported;
 
 export const getErrorMessageId = (remoteResource, { remoteTypeErrorMessageId } = {}) => {
@@ -111,7 +123,13 @@ export const validateFileResourceUploads = (uploads = [], { supportedFiles = [] 
                 supported: false
             };
         }
-        const missingExtensions = currentSupportedType.required_ext.filter(ext => !upload.ext.includes(ext));
+        const allUploadsAreOptional = upload.ext.every(ext =>
+                (currentSupportedType.optional_ext || []).includes(ext) &&
+                !currentSupportedType.required_ext.includes(ext)
+            );
+        const missingExtensions = allUploadsAreOptional
+                ? []
+                : currentSupportedType.required_ext.filter(ext => !upload.ext.includes(ext));
         const supportedTypeExtensions = getSupportedTypeExt(currentSupportedType);
         return {
             ...upload,
@@ -135,10 +153,15 @@ export const validateRemoteResourceUploads = (uploads = [], { remoteTypes } = {}
         const isValidRemoteUrl = !!upload.url
             && !(upload.url.indexOf('/') === 0) // is not relative
             && isValidURL(upload.url);
-        const isRemoteTypeSupported = remoteTypes ? !!remoteTypes.find(({ value }) => value === upload.remoteType) : true;
+
+        // Automatically change remoteType by file extension
+        const remoteType = remoteTypeByUrl(upload.url, upload.remoteType);
+
+        const isRemoteTypeSupported = remoteTypes ? !!remoteTypes.find(({ value }) => value === remoteType) : true;
         const supported = !!(!isRemoteUrlDuplicated && isValidRemoteUrl && isRemoteTypeSupported);
         return {
             ...upload,
+            remoteType,
             supported,
             ready: supported,
             validation: {
@@ -199,7 +222,7 @@ export const getSupportedDocumentTypes = () => {
     return allowedDocumentTypes;
 };
 
-export const getSupportedFilesByResourceType = (resourceType, { actions } = {}) => {
+export const getSupportedFilesByResourceType = (resourceType, actions) => {
     if (resourceType === 'document') {
         const allowedDocumentTypes = getSupportedDocumentTypes();
         return allowedDocumentTypes.map((ext) => {
