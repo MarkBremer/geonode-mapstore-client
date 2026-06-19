@@ -13,7 +13,6 @@ import Dropzone from 'react-dropzone';
 
 import Message from '@mapstore/framework/components/I18N/Message';
 import ConfirmDialog from '@mapstore/framework/components/layout/ConfirmDialog';
-import ViewerLayout from '@js/components/ViewerLayout';
 import uuidv1 from 'uuid/v1';
 import uniq from 'lodash/uniq';
 import { getFileNameParts } from '@js/utils/FileUtils';
@@ -25,6 +24,8 @@ import {
     validateFileResourceUploads,
     parseFileResourceUploads
 } from '../../../utils/UploadUtils';
+import MapViewerLayout from '@mapstore/framework/components/layout/MapViewerLayout';
+
 function ErrorButton({ dataCy, ...props }) {
     return (
         <div {...props} style={{ width: 'fit-content', margin: 'auto' }} className="gn-disabled-upload">
@@ -156,24 +157,15 @@ function UploadPanel({
                 rejectClassName="gn-dropzone-reject"
                 disableClick
             >
-                <ViewerLayout
+                <MapViewerLayout
                     rightColumn={rightColumn}
                     leftColumn={<div className="gn-upload-list">
                         <div className="gn-upload-list-header">
                             <input disabled={disabledAdd} ref={inputFile} value="" type="file" multiple onChange={(event) => handleFile([...event?.target?.files])} style={{ display: 'none' }} />
-                            <Button
-                                disabled={disabledAdd}
-                                cy-data="btn-select-files"
-                                onClick={() => inputFile?.current?.click()}
-                            >
+                            <Button disabled={disabledAdd}  cy-data="btn-select-files" onClick={() => inputFile?.current?.click()}>
                                 <Glyphicon glyph="plus" /><Message msgId="gnviewer.selectFiles" />
                             </Button>
-                            {enableRemoteUploads && <Button
-                                disabled={disabledAdd}
-                                className={"add-url"}
-                                cy-data="btn-add-from-url"
-                                onClick={() => handleRemote()}
-                            >
+                            {enableRemoteUploads && <Button disabled={disabledAdd} className={"add-url"} cy-data="btn-add-from-url" onClick={() => handleRemote()}>
                                 <Glyphicon glyph="plus" /><Message msgId="gnviewer.addFromUrl" />
                             </Button>}
                         </div>
@@ -266,7 +258,7 @@ function UploadPanel({
                     </div>}
                 >
                     {children}
-                </ViewerLayout>
+                </MapViewerLayout>
             </Dropzone>
         </>
 

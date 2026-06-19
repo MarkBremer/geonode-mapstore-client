@@ -8,7 +8,6 @@
 import { connect } from 'react-redux';
 import main from '@mapstore/framework/components/app/main';
 import ComponentsRoute from '@js/routes/Components';
-import MainLoader from '@js/components/MainLoader';
 import Router, { withRoutes } from '@js/components/Router';
 import security from '@mapstore/framework/reducers/security';
 import {
@@ -30,6 +29,7 @@ import { updateGeoNodeSettings } from '@js/actions/gnsettings';
 import { COMPONENTS_ROUTES, appRouteComponentTypes } from '@js/utils/AppRoutesUtils';
 import gnresourceEpics from '@js/epics/gnresource';
 import resourceServiceEpics from '@js/epics/resourceservice';
+import securityEpics from '@js/epics/security';
 
 import gnresource from '@js/reducers/gnresource';
 import resourceservice from '@js/reducers/resourceservice';
@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ...configEpics,
                             ...gnresourceEpics,
                             ...resourceServiceEpics,
+                            ...securityEpics,
                             gnListenToResourcesPendingExecution,
                             gnHandleAsyncProcessErrors
                         });
@@ -85,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             appComponent: withRoutes(routes)(ConnectedRouter),
                             pluginsConfig: getPluginsConfigOverride(getPluginsConfiguration(localConfig.plugins, pluginsConfigKey)),
                             targetId: 'ms-container',
-                            loaderComponent: MainLoader,
+                            loaderComponent: ()=> null,
                             pluginsDef: {
                                 plugins: {
                                     ...pluginsDefinition.plugins
@@ -114,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             initialActions: [
                                 updateGeoNodeSettings.bind(null, settings)
                             ]
-                        });
-                    }, withExtensions(StandardApp));
+                        }, withExtensions(StandardApp));
+                    });
             });
     });
 });

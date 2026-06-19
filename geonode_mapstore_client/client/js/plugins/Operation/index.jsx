@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import Button from '@mapstore/framework/components/layout/Button';
 import { selectOperation, reloadOperation } from './actions/operation';
-import { getResourceData } from '@js/selectors/resource';
+import { getResourceData, canAddRemoteResource } from '@js/selectors/resource';
 import operation from './reducers/operation';
 import epics from './epics/operation';
 import OperationUpload from './containers/OperationUpload';
@@ -61,24 +61,24 @@ import Message from '@mapstore/framework/components/I18N/Message';
  *      "action": "upload",
  *      "api": {
  *          "upload": {
- *              "url": "{context.getEndpointUrl('uploads', '/upload')}",
+ *              "url": "{getEndpointUrl('uploads', '/upload')}",
  *              "maxParallelUploads": 1,
  *              "enableRemoteUploads": false,
- *              "supportedFiles": "{context.getSupportedFilesByResourceType('dataset', { actions: ['upload'] })}",
+ *              "supportedFiles": "{getSupportedFilesByResourceType('dataset', { actions: ['upload'] })}",
  *              "body": {
  *                  "file": {
- *                      "base_file": "{context.getUploadMainFile}",
- *                      "resource_pk": "{context.get(state('gnResourceData'), 'pk')}",
+ *                      "base_file": "{getUploadMainFile}",
+ *                      "resource_pk": "{get(state('gnResourceData'), 'pk')}",
  *                      "action": "upload"
  *                  }
  *              }
  *          },
  *          "executionRequest": {
- *              "url": "{context.getEndpointUrl('executionrequest')}",
+ *              "url": "{getEndpointUrl('executionrequest')}",
  *              "params": {
  *                  "filter{action}": "upload",
  *                  "sort[]": "-created",
- *                  "filter{geonode_resource}": "{context.get(state('gnResourceData'), 'pk')}"
+ *                  "filter{geonode_resource}": "{get(state('gnResourceData'), 'pk')}"
  *              }
  *          }
  *      }
@@ -102,7 +102,8 @@ function Operation({
     titleMsgId,
     descriptionMsgId,
     action,
-    pageReload
+    pageReload,
+    canAddRemote = false
 }) {
 
     // open the import ui if a blocking execution is still running
@@ -135,6 +136,7 @@ function Operation({
             titleMsgId={titleMsgId}
             descriptionMsgId={descriptionMsgId}
             pageReload={pageReload}
+            canAddRemote={canAddRemote}
         />
     );
 }
@@ -142,10 +144,12 @@ function Operation({
 const OperationPlugin = connect(
     createSelector([
         state => state?.operation?.selected,
-        getResourceData
-    ], (selected, resource) => ({
+        getResourceData,
+        canAddRemoteResource
+    ], (selected, resource, canAddRemote) => ({
         selected,
-        resource
+        resource,
+        canAddRemote
     })),
     {
         onSelect: selectOperation,

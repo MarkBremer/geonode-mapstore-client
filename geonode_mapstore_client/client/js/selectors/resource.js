@@ -12,7 +12,7 @@ import { compareMapChanges } from '@mapstore/framework/utils/MapUtils';
 import { currentStorySelector } from '@mapstore/framework/selectors/geostory';
 import { originalDataSelector } from '@mapstore/framework/selectors/dashboard';
 import { widgetsConfig } from '@mapstore/framework/selectors/widgets';
-import { ResourceTypes, RESOURCE_PUBLISHING_PROPERTIES, RESOURCE_OPTIONS_PROPERTIES, resourceToLayerConfig } from '@js/utils/ResourceUtils';
+import { ResourceTypes, RESOURCE_PUBLISHING_PROPERTIES, RESOURCE_OPTIONS_PROPERTIES, resourceToLayerConfig, STYLE_SUPPORTED_LAYER_TYPES } from '@js/utils/ResourceUtils';
 import {
     getCurrentResourceDeleteLoading,
     getCurrentResourceCopyLoading
@@ -29,6 +29,7 @@ import isNil from 'lodash/isNil';
 import { generateContextResource } from '@mapstore/framework/selectors/contextcreator';
 import { layerSettingSelector, getSelectedLayer as getSelectedNode } from '@mapstore/framework/selectors/layers';
 import { saveLayer } from '@mapstore/framework/utils/LayersUtils';
+import { crsProjectionsConfigSelector } from '@mapstore/framework/selectors/crsselector';
 
 const RESOURCE_MANAGEMENT_PROPERTIES_KEYS = Object.keys({...RESOURCE_PUBLISHING_PROPERTIES, ...RESOURCE_OPTIONS_PROPERTIES});
 
@@ -87,12 +88,23 @@ export const canAddResource = (state) => {
     return state?.security?.user?.perms?.includes("add_resource");
 };
 
+export const canAddRemoteResource = (state) => {
+    return !!state?.security?.user?.perms?.includes("add_remote_resource");
+};
+
 export const isNewResource = (state) => {
     return !!state?.gnresource?.isNew;
 };
 
 export const getResourceData = (state) => {
     return state?.gnresource?.data;
+};
+
+// Returns the dataset persisted payload `{ layerSettings, mapConfig }` from
+// `resource.data`. Source of truth for same-resource page transitions where
+// `gnresource.data` has been stripped of its `data` field by SET_RESOURCE.
+export const getMapLayerData = (state) => {
+    return state?.gnresource?.mapLayerData ?? { layerSettings: {}, mapConfig: {} };
 };
 
 export const getLayerResourceData = (state) => {
@@ -177,13 +189,29 @@ export const getDataPayload = (state, resourceType) => {
         currentLayerSettings = omitBy(currentLayerSettings,
             (value, key) => key === "opacity" && value === 1); // skip default value
         const selectedLayer = getSelectedNode(state);
-        const omitKeys = ['extendedParams', 'availableStyles', 'infoFormats', 'style'];
+        const omitKeys = [
+            'extendedParams',
+            'availableStyles',
+            'infoFormats',
+            ...(STYLE_SUPPORTED_LAYER_TYPES.includes(state?.gnresource?.subtype) ? ['style'] : [])
+        ];
         const data = saveLayer(selectedLayer ?? {});
-        return omit({
-            ...data,
-            ...currentLayerSettings,
-            ...(selectedLayer && {fields: selectedLayer?.fields ?? {}})
-        }, omitKeys);
+        const mapConfig = mapSaveSelector(state);
+        const crsSelectorConfig = crsProjectionsConfigSelector(state);
+        return {
+            layerSettings: omit({
+                ...data,
+                ...currentLayerSettings,
+                ...(selectedLayer && { fields: selectedLayer?.fields ?? {} })
+            }, omitKeys),
+            mapConfig: {
+                map: pick(mapConfig?.map || {}, [
+                    'projection',
+                    'projections'
+                ]),
+                ...(!isEmpty(crsSelectorConfig) && { crsSelector: crsSelectorConfig })
+            }
+        };
     }
     default:
         return null;
@@ -247,7 +275,7 @@ export const getInitialDatasetLayerStyle = (state) => {
     return initialResource ? resourceToLayerConfig(initialResource)?.style : null;
 };
 
-function isResourceDataEqual(state, initialData = {}, currentData = {}) {
+export function isResourceDataEqual(state, initialData = {}, currentData = {}) {
     const resourceType = state?.gnresource?.type;
     if (isEmpty(initialData) || isEmpty(currentData)) {
         return true;
@@ -323,13 +351,14 @@ function isResourceDataEqual(state, initialData = {}, currentData = {}) {
         const isSettingsEqual = compareObjects(omit(currentData, ['style', 'fields']),
             omit(initialLayerData, ['style', 'fields', 'extendedParams', 'pk', '_v_', 'isDataset', 'perms']));
         const isStyleEqual = isEmpty(initialStyle) || isEmpty(selectedLayer?.style) ? true
-            : selectedLayer?.style === initialStyle;
+            // string comparison is preferred to avoid issues with different key in style, in some case contains empty properties
+            : initialStyle?.metadata?.styleJSON === selectedLayer?.style?.metadata?.styleJSON;
+
         const isAttributesEqual = isEmpty(selectedLayer) ? true
             : !isEmpty(initialLayerData) && isEqual(
                 isEmpty(initialLayerData?.fields) ? {} : initialLayerData?.fields,
                 isEmpty(selectedLayer?.fields) ? {} : selectedLayer?.fields
             );
-
         return isSettingsEqual && isAttributesEqual && isStyleEqual;
     }
     default:

@@ -14,21 +14,28 @@ import {
     gnViewerSetNewResourceThumbnail,
     closeInfoPanelOnMapClick,
     closeDatasetCatalogPanel,
-    gnZoomToFitBounds,
-    closeResourceDetailsOnMapInfoOpen
+    closeResourceDetailsOnMapInfoOpen,
+    gnUpdateResourceExtent,
+    gnUpdateBackgroundEditEpic,
+    gnUpdateEditProjectionEpic
 } from '@js/epics/gnresource';
+import { SAVE_SUCCESS } from '@mapstore/framework/actions/featuregrid';
 import {
     setResourceThumbnail,
     UPDATE_RESOURCE_PROPERTIES,
-    UPDATE_SINGLE_RESOURCE
+    UPDATE_SINGLE_RESOURCE,
+    UPDATE_RESOURCE_EXTENT_LOADING,
+    updateResourceExtent
 } from '@js/actions/gnresource';
-import { clickOnMap, changeMapView, ZOOM_TO_EXTENT } from '@mapstore/framework/actions/map';
-import { SET_CONTROL_PROPERTY, setControlProperty } from '@mapstore/framework/actions/controls';
+import { clickOnMap } from '@mapstore/framework/actions/map';
+import { SET_CONTROL_PROPERTY } from '@mapstore/framework/actions/controls';
 import {
     SHOW_NOTIFICATION
 } from '@mapstore/framework/actions/notifications';
 import { newMapInfoRequest } from '@mapstore/framework/actions/mapInfo';
 import { SET_SHOW_DETAILS } from '@mapstore/framework/plugins/ResourcesCatalog/actions/resources';
+import { CREATE_BACKGROUNDS_LIST } from '@mapstore/framework/actions/backgroundselector';
+import { MAP_CONFIG_LOADED } from '@mapstore/framework/actions/config';
 
 let mockAxios;
 
@@ -249,17 +256,34 @@ describe('gnresource epics', () => {
 
     });
 
-    it('should zoom to extent with the fitBounds control', (done) => {
-        const NUM_ACTIONS = 2;
-        const testState = {};
-        testEpic(gnZoomToFitBounds,
+    it('should update resource extent on UPDATE_RESOURCE_EXTENT action', (done) => {
+        const NUM_ACTIONS = 3;
+        const pk = 1;
+        const testState = {
+            gnresource: {
+                data: {
+                    pk: pk,
+                    'title': 'Map'
+                }
+            }
+        };
+        mockAxios.onPut(new RegExp(`datasets/${pk}/bbox_recalc`))
+            .reply(() => [200, { success: true }]);
+
+        testEpic(
+            gnUpdateResourceExtent,
             NUM_ACTIONS,
-            [setControlProperty('fitBounds', 'geometry', [-180, -90, 180, 90]), changeMapView()],
+            updateResourceExtent(),
             (actions) => {
                 try {
-                    expect(actions.length).toBe(2);
-                    expect(actions[0].type).toBe(ZOOM_TO_EXTENT);
-                    expect(actions[1].type).toBe(SET_CONTROL_PROPERTY);
+                    expect(actions.map(({ type }) => type))
+                        .toEqual([
+                            UPDATE_RESOURCE_EXTENT_LOADING,
+                            UPDATE_RESOURCE_EXTENT_LOADING,
+                            SHOW_NOTIFICATION
+                        ]);
+                    expect(actions[0].loading).toBe(true);
+                    expect(actions[1].loading).toBe(false);
                 } catch (e) {
                     done(e);
                 }
@@ -267,6 +291,100 @@ describe('gnresource epics', () => {
             },
             testState
         );
+    });
 
+    it('should update resource extent on SAVE_SUCCESS without notification', (done) => {
+        const NUM_ACTIONS = 2;
+        const pk = 1;
+        const testState = {
+            gnresource: {
+                data: {
+                    pk: pk,
+                    'title': 'Map'
+                }
+            }
+        };
+        mockAxios.onPut(new RegExp(`datasets/${pk}/bbox_recalc`))
+            .reply(() => [200, { success: true }]);
+
+        testEpic(
+            gnUpdateResourceExtent,
+            NUM_ACTIONS,
+            { type: SAVE_SUCCESS },
+            (actions) => {
+                try {
+                    expect(actions.map(({ type }) => type))
+                        .toEqual([
+                            UPDATE_RESOURCE_EXTENT_LOADING,
+                            UPDATE_RESOURCE_EXTENT_LOADING
+                        ]);
+                    expect(actions[0].loading).toBe(true);
+                    expect(actions[1].loading).toBe(false);
+                } catch (e) {
+                    done(e);
+                }
+                done();
+            },
+            testState
+        );
+    });
+
+    it('should set canEdit true for MAP resource with change_resourcebase permission', (done) => {
+        const NUM_ACTIONS = 1;
+        const testState = {
+            gnresource: {
+                type: "map",
+                data: {
+                    pk: 1,
+                    title: 'Test Map',
+                    perms: ['view_resourcebase', 'change_resourcebase']
+                }
+            }
+        };
+
+        testEpic(
+            gnUpdateBackgroundEditEpic,
+            NUM_ACTIONS,
+            { type: CREATE_BACKGROUNDS_LIST },
+            (actions) => {
+                try {
+                    expect(actions.length).toBe(1);
+                    expect(actions[0].resource.canEdit).toBe(true);
+                } catch (e) {
+                    done(e);
+                }
+                done();
+            },
+            testState
+        );
+    });
+    it('should set canEdit projection false for MAP resource without change_resourcebase permission', (done) => {
+        const NUM_ACTIONS = 1;
+        const testState = {
+            gnresource: {
+                type: "map",
+                data: {
+                    pk: 1,
+                    title: 'Test Map',
+                    perms: ['view_resourcebase']
+                }
+            }
+        };
+
+        testEpic(
+            gnUpdateEditProjectionEpic,
+            NUM_ACTIONS,
+            { type: MAP_CONFIG_LOADED },
+            (actions) => {
+                try {
+                    expect(actions.length).toBe(1);
+                    expect(actions[0].canEdit).toBe(false);
+                } catch (e) {
+                    done(e);
+                }
+                done();
+            },
+            testState
+        );
     });
 });

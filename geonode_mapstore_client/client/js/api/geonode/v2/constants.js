@@ -35,7 +35,9 @@ let endpoints = {
     'facets': '/api/v2/facets',
     'uploads': '/api/v2/uploads',
     'metadata': '/api/v2/metadata',
-    'assets': '/api/v2/assets'
+    'assets': '/api/v2/assets',
+    'rules': '/api/v2/reqrules',
+    'userinfo': '/api/v2/userinfo/'
 };
 
 export const RESOURCES = 'resources';
@@ -51,6 +53,8 @@ export const FACETS = 'facets';
 export const UPLOADS = 'uploads';
 export const METADATA = 'metadata';
 export const ASSETS = 'assets';
+export const RULES = 'rules';
+export const USER_INFO = 'userinfo';
 
 export const setEndpoints = (data) => {
     endpoints = { ...endpoints, ...data };

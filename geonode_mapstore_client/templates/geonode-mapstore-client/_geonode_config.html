@@ -72,18 +72,16 @@
         let catalogPagePath = geoNodeSettings.CATALOG_PAGE_PATH;
         let isPublishedOptionEnabled = geoNodeSettings.RESOURCE_PUBLISHING || false;
         let isApprovedOptionEnabled = geoNodeSettings.ADMIN_MODERATE_UPLOADS || false;
+        let resourcesSearchIndex = geoNodeSettings.RESOURCES_SEARCH_INDEX || 'title_abstract';
         let customFilters = geoNodeSettings.CUSTOM_FILTERS || {
             "my-resources": {
-                "filter{owner.pk}": "{state('user') && state('user').pk}"
+                "filter{owner.pk}": "{get(state('user'), 'pk')}"
             },
             "favorite": {
                 "favorite": true
             },
             "featured": {
                 "filter{featured}": true
-            },
-            "unpublished": {
-                "filter{is_published}": false
             },
             "pending-approval": {
                 "filter{is_approved}": false
@@ -109,6 +107,9 @@
             "3dtiles": {
                 "filter{subtype.in}": "3dtiles"
             },
+            "tabular": {
+                "filter{subtype.in}": "tabular"
+            },
             "document": {
                 "filter{resource_type.in}": "document"
             },
@@ -132,6 +133,7 @@
         let siteName = '{{ SITE_NAME }}' || 'Geonode';
         let geoServerPublicLocation = '{{ GEOSERVER_PUBLIC_LOCATION }}' || '';
         let isMobile = '{{ request.user_agent.is_mobile }}' === 'True' ? true : false;
+        let useCORS = geoNodeSettings.USE_CORS || [];
 
         const searchServicesPayload =  {{SEARCH_SERVICES_PAYLOAD|safe}};
         let searchServicesPatchRules = searchServicesPayload.length ? ['map_viewer', 'dataset_viewr', 'map_viewer_mobile', 'dataset_viewer_mobile'].map(
@@ -144,6 +146,10 @@
 
         {% block override_settings %}
         {% endblock %}
+
+        // Prevents MapStore from creating a new localStorage namespace on each page load.
+        window.MAPSTORE_STORAGE_NAMESPACE = '';
+
         window.__GEONODE_CONFIG__ = {
             languageCode: '{{ LANGUAGE_CODE }}',
             languages: languages,
@@ -158,7 +164,7 @@
             localConfig: {
                 proxyUrl: {
                     url: '{{UPDATED_PROXY_URL|safe }}',
-                    useCORS: []
+                    useCORS: useCORS
                 },
                 useAuthenticationRules: true,
                 authenticationRules: [
@@ -183,6 +189,23 @@
                 geoNodeApi: {
                     endpointV1: siteUrl + 'api',
                     endpointV2: siteUrl + 'api/v2/'
+                },
+                initialState: {
+                    defaultState: {
+                        catalog: {
+                            default: {
+                                staticServices: {
+                                    default_map_backgrounds: {
+                                        type: 'backgrounds',
+                                        title: 'Default Backgrounds',
+                                        titleMsgId: 'defaultMapBackgroundsServiceTitle',
+                                        autoload: true,
+                                        backgrounds: baseLayers
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 projectionDefs: projectionDefs,
                 geoNodeCustomFilters: customFilters,
@@ -214,7 +237,8 @@
                     catalogHomeRedirectsTo: catalogHomeRedirectsTo,
                     catalogPagePath: catalogPagePath,
                     isPublishedOptionEnabled: isPublishedOptionEnabled,
-                    isApprovedOptionEnabled: isApprovedOptionEnabled
+                    isApprovedOptionEnabled: isApprovedOptionEnabled,
+                    resourcesSearchIndex: resourcesSearchIndex
                 }
             },
         };

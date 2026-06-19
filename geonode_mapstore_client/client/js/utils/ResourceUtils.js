@@ -18,6 +18,10 @@ import { getGeoNodeLocalConfig, parseDevHostname } from '@js/utils/APIUtils';
 import { ProcessTypes, ProcessStatus } from '@js/utils/ResourceServiceUtils';
 import { determineResourceType } from '@js/utils/FileUtils';
 
+import { createDefaultStyle } from '@mapstore/framework/utils/StyleUtils';
+import { getSupportedLocales } from '@mapstore/framework/utils/LocaleUtils';
+import { shortLocale } from '@js/utils/LocaleUtils';
+
 /**
 * @module utils/ResourceUtils
 */
@@ -31,7 +35,15 @@ function getExtentFromResource({ extent }) {
     // if the extent is greater than the max extent of the WGS84 return null
     const WGS84_MAX_EXTENT = [-180, -90, 180, 90];
     if (minx < WGS84_MAX_EXTENT[0] || miny < WGS84_MAX_EXTENT[1] || maxx > WGS84_MAX_EXTENT[2] || maxy > WGS84_MAX_EXTENT[3]) {
-        return null;
+        return {
+            crs: 'EPSG:4326',
+            bounds: {
+                minx: WGS84_MAX_EXTENT[0],
+                miny: WGS84_MAX_EXTENT[1],
+                maxx: WGS84_MAX_EXTENT[2],
+                maxy: WGS84_MAX_EXTENT[3]
+            }
+        };
     }
     const bbox = {
         crs: 'EPSG:4326',
@@ -113,6 +125,9 @@ export const TIME_ATTRIBUTE_TYPES = ['xsd:date', 'xsd:dateTime', 'xsd:date-time'
 
 export const TIME_PRECISION_STEPS = ['years', 'months', 'days', 'hours', 'minutes', 'seconds'];
 
+// Formats that support styling in GeoServer.
+export const STYLE_SUPPORTED_LAYER_TYPES = ['vector', 'raster', 'vector_time'];
+
 export const isDefaultDatasetSubtype = (subtype) => !subtype || ['vector', 'raster', 'remote', 'vector_time'].includes(subtype);
 
 export const FEATURE_INFO_FORMAT = 'TEMPLATE';
@@ -153,6 +168,37 @@ export const getDimensions = ({links, has_time: hasTime} = {}) => {
     return dimensions;
 };
 
+
+const getLocalizedValue = (resource, key, locale = '') => {
+    if (resource[`${key}_${locale}`]) {
+        return resource[`${key}_${locale}`];
+    }
+    const languageCode = shortLocale(locale);
+    if (resource[`${key}_${languageCode}`]) {
+        return resource[`${key}_${languageCode}`];
+    }
+    return null;
+};
+
+export const getLocalizedValues = (resource, key, defaultValue) => {
+    const supportedLocales = getSupportedLocales() || {};
+    const translations = Object.values(supportedLocales)
+        .map(({ code }) => {
+            const value = getLocalizedValue(resource, key, code);
+            return value ? [code, value] : null;
+        })
+        .filter(value => value !== null);
+
+    if (translations.length) {
+        return {
+            ...Object.fromEntries(translations),
+            'default': defaultValue
+        };
+    }
+    return defaultValue;
+};
+
+
 /**
 * convert resource layer configuration to a mapstore layer object
 * @param {object} resource geonode layer resource
@@ -162,17 +208,23 @@ export const resourceToLayerConfig = (resource) => {
 
     const {
         alternate,
+        attribute_set: attributeSet = [],
         links = [],
         featureinfo_custom_template: template,
-        title,
+        title: defaultTitle,
         perms,
         pk,
         default_style: defaultStyle,
         ptype,
         subtype,
         sourcetype,
-        data: layerSettings
+        data
     } = resource;
+
+    const layerSettings = data?.layerSettings ?? data;
+
+    const title = getLocalizedValues(resource, 'title', defaultTitle);
+
 
     const bbox = getExtentFromResource(resource);
     const defaultStyleParams = defaultStyle && {
@@ -184,16 +236,11 @@ export const resourceToLayerConfig = (resource) => {
 
     const extendedParams = {
         pk,
-        mapLayer: {
-            dataset: resource
-        },
-        ...defaultStyleParams
+        alternate
     };
 
     if (subtype === '3dtiles') {
-
         const { url: tilesetUrl } = links.find(({ extension }) => (extension === '3dtiles')) || {};
-
         return {
             id: uuid(),
             type: '3dtiles',
@@ -201,10 +248,44 @@ export const resourceToLayerConfig = (resource) => {
             url: parseDevHostname(tilesetUrl || ''),
             ...(bbox && { bbox }),
             visibility: true,
+            ...layerSettings,
             extendedParams
         };
     }
+    if (subtype === 'cog') {
+        const { url: cogUrl } = links.find(({ extension }) => (extension === 'cog')) || {};
+        return {
+            perms,
+            id: uuid(),
+            type: 'cog',
+            title,
+            sources: [{
+                url: parseDevHostname(cogUrl || '')
+            }],
+            ...(bbox && { bbox }),
+            visibility: true,
+            ...layerSettings,
+            extendedParams
+        };
+    }
+    if (subtype === 'flatgeobuf') {
+        const defaultGeomType = 'GeometryCollection';
+        const geometryType = attributeSet.find(attr => attr.attribute === 'geometryType')?.attribute_type || defaultGeomType;
 
+        const { url: fgbUrl } = links.find(({ extension }) => (extension === 'flatgeobuf')) || {};
+        return {
+            perms,
+            id: uuid(),
+            type: 'flatgeobuf',
+            title,
+            style: createDefaultStyle({ geometryType }),
+            url: parseDevHostname(fgbUrl || ''),
+            ...(bbox && { bbox }),
+            visibility: true,
+            ...layerSettings,
+            extendedParams
+        };
+    }
     switch (ptype) {
     case GXP_PTYPES.REST_MAP:
     case GXP_PTYPES.REST_IMG: {
@@ -221,6 +302,7 @@ export const resourceToLayerConfig = (resource) => {
             ...(bbox && { bbox }),
             title,
             visibility: true,
+            ...layerSettings,
             extendedParams
         };
     }
@@ -263,12 +345,12 @@ export const resourceToLayerConfig = (resource) => {
             visibility: true,
             ...(params && { params }),
             ...(dimensions.length > 0 && ({ dimensions })),
-            extendedParams,
             ...(fields && { fields }),
             ...(sourcetype === SOURCE_TYPES.REMOTE && !wmsUrl.includes('/geoserver/') && {
                 serverType: ServerTypes.NO_VENDOR
             }),
-            ...layerSettings
+            ...layerSettings,
+            extendedParams
         };
     }
 };
@@ -319,14 +401,35 @@ export function permissionsListsToCompact({ groups, entries }) {
     };
 }
 
-export function permissionsCompactToLists({ groups, users, organizations }) {
+function getPermissionsListEntry(entry, type, user) {
+    const isCurrentUserEntry = type === 'user' && !!user?.pk && entry?.id === user.pk;
+    const disabled = !!isCurrentUserEntry;
+
+    if (type === 'user') {
+        return {
+            ...entry,
+            type,
+            disabled,
+            ...(!entry.parsed && { name: entry.username, avatar: entry.avatar })
+        };
+    }
+
+    return {
+        ...entry,
+        type,
+        disabled,
+        ...(!entry.parsed && { name: entry.title, avatar: entry.logo })
+    };
+}
+
+export function permissionsCompactToLists({ groups, users, organizations }, user) {
     return {
         groups: [
             ...(groups || []).map((entry) => ({ ...entry, type: 'group', ...(!entry.parsed && { name: entry.name, avatar: entry.logo }) }))
         ],
         entries: [
-            ...(users || []).map((entry) => ({ ...entry, type: 'user', ...(!entry.parsed && { name: entry.username, avatar: entry.avatar }) })),
-            ...(organizations || []).map((entry) => ({ ...entry, type: 'group', ...(!entry.parsed && { name: entry.title, avatar: entry.logo }) }))
+            ...(users || []).map((entry) => getPermissionsListEntry(entry, 'user', user)),
+            ...(organizations || []).map((entry) => getPermissionsListEntry(entry, 'group', user))
         ]
     };
 }
@@ -358,7 +461,7 @@ export function getGeoLimitsFromCompactPermissions({ groups = [], users = [], or
 }
 
 export const resourceHasPermission = (resource, perm) => {
-    return resource?.perms?.includes(perm);
+    return !!resource?.perms?.includes(perm);
 };
 
 
@@ -474,25 +577,13 @@ export const getResourceStatuses = (resource, userInfo) => {
     const isProcessing = !!runningExecutions.length;
     const isDeleting = runningExecutions.some(({ func_name: funcName }) => ['delete', ProcessTypes.DELETE_RESOURCE].includes(funcName));
     const isCopying = runningExecutions.some(({ func_name: funcName }) => ['copy', 'copy_geonode_resource', ProcessTypes.COPY_RESOURCE].includes(funcName));
-    const isPending = !isApproved || !resource?.is_published;
     return {
         isApproved,
         isPublished,
         isProcessing,
         isDeleting,
         isCopying,
-        isPending,
-        ...(!isPublished && !isProcessing ? {
-            cardTooltipId: !isApproved ? 'gnviewer.pendingApproval' : 'gnviewer.pendingPublish',
-            cardClassNames: ['gn-resource-status-pending']
-        } : {}),
         items: [
-            ...(!isPublished && !isProcessing ? [{
-                type: 'icon',
-                tooltipId: !isApproved ? 'gnviewer.pendingApproval' : 'gnviewer.pendingPublish',
-                glyph: 'info-circle',
-                className: 'gn-resource-status-pending'
-            }] : []),
             ...(resource.advertised === false ? [{
                 type: 'icon',
                 tooltipId: 'resourcesCatalog.unadvertised',
@@ -612,18 +703,19 @@ export function cleanStyles(styles = [], excluded = []) {
 
 export function getGeoNodeMapLayers(data) {
     return (data?.map?.layers || [])
-        .filter(layer => layer?.extendedParams?.mapLayer)
+        .filter(layer => layer?.extendedParams?.pk)
         .map((layer, index) => {
             return {
-                ...(layer?.extendedParams?.mapLayer && {
+                ...(layer.extendedParams.mapLayer?.pk && {
                     pk: layer.extendedParams.mapLayer.pk
                 }),
-                current_style: layer.style || '',
                 extra_params: {
                     msId: layer.id
                 },
-                ...(layer.type === 'wms' && { current_style: layer.style || '' }),
-                name: layer.name || '',
+                ...(layer.type === 'wms' && {
+                    current_style: layer.style || ''
+                }),
+                name: layer?.extendedParams?.alternate || layer.name || '',
                 order: index,
                 opacity: layer.opacity ?? 1,
                 visibility: layer.visibility
@@ -637,32 +729,34 @@ export function toGeoNodeMapConfig(data) {
     }
     const maplayers = getGeoNodeMapLayers(data);
     return {
-        maplayers
+        maplayers,
+        data: {
+            ...data,
+            map: {
+                ...data?.map,
+                layers: (data?.map?.layers || []).map((layer) => {
+                    return {
+                        ...layer,
+                        // clean up extended params
+                        ...(layer?.extendedParams?.pk && {
+                            extendedParams: {
+                                pk: layer.extendedParams.pk,
+                                alternate: layer.extendedParams.alternate,
+                                ...(layer.extendedParams.mapLayer?.pk && {
+                                    mapLayer: { pk: layer.extendedParams.mapLayer.pk }
+                                })
+                            }
+                        })
+                    };
+                })
+            }
+        }
     };
-}
-
-export function compareBackgroundLayers(aLayer, bLayer) {
-    return aLayer.type === bLayer.type
-        && aLayer.name === bLayer.name
-        && aLayer.source === bLayer.source
-        && aLayer.provider === bLayer.provider
-        && aLayer.url === bLayer.url;
 }
 
 export function toMapStoreMapConfig(resource, baseConfig) {
     const { maplayers = [], data } = resource || {};
-    const baseMapBackgroundLayers = (baseConfig?.map?.layers || []).filter(layer => layer.group === 'background');
-    const currentBackgroundLayer = (data?.map?.layers || [])
-        .filter(layer => layer.group === 'background')
-        .find(layer => layer.visibility && baseMapBackgroundLayers.find(bLayer => compareBackgroundLayers(layer, bLayer)));
-
-    const backgroundLayers = !currentBackgroundLayer
-        ? baseMapBackgroundLayers
-        : baseMapBackgroundLayers.map((layer) => ({
-            ...layer,
-            visibility: compareBackgroundLayers(layer, currentBackgroundLayer)
-        }));
-
+    const backgroundLayers = (data?.map?.layers || []).filter(layer => layer.group === 'background');
     const layers = (data?.map?.layers || [])
         .filter(layer => layer.group !== 'background')
         .map((layer) => {
@@ -674,8 +768,11 @@ export function toMapStoreMapConfig(resource, baseConfig) {
                         style: mapLayer.current_style || layer.style || ''
                     }),
                     extendedParams: {
-                        ...layer.extendedParams,
-                        mapLayer
+                        pk: mapLayer.dataset?.pk ?? layer.extendedParams?.pk,
+                        alternate: mapLayer.dataset?.alternate ?? layer.extendedParams?.alternate ?? layer.name,
+                        ...(mapLayer.pk !== undefined && {
+                            mapLayer: { pk: mapLayer.pk }
+                        })
                     }
                 };
             }
@@ -846,12 +943,26 @@ export const getResourceImageSource = (image) => {
     return image ? image : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADICAIAAABZHvsFAAAACXBIWXMAAC4jAAAuIwF4pT92AAABiklEQVR42u3SAQ0AAAjDMMC/5+MAAaSVsKyTFHwxEmBoMDQYGgyNocHQYGgwNBgaQ4OhwdBgaDA0hgZDg6HB0GBoDA2GBkODocHQGBoMDYYGQ4OhMTQYGgwNhgZDY2gwNBgaDI2hwdBgaDA0GBpDg6HB0GBoMDSGBkODocHQYGgMDYYGQ4OhwdAYGgwNhgZDg6ExNBgaDA2GBkNjaDA0GBoMDYbG0GBoMDQYGkODocHQYGgwNIYGQ4OhwdBgaAwNhgZDg6HB0BgaDA2GBkODoTE0GBoMDYYGQ2NoMDQYGgwNhsbQYGgwNBgaQ4OhwdBgaDA0hgZDg6HB0GBoDA2GBkODocHQGBoMDYYGQ4OhMTQYGgwNhgZDY2gwNBgaDA2GxtBgaDA0GBoMjaHB0GBoMDSGBkODocHQYGgMDYYGQ4OhwdAYGgwNhgZDg6ExNBgaDA2GBkNjaDA0GBoMDYbG0GBoMDQYGgyNocHQYGgwNIYGQ4OhwdBgaAwNhgZDg6HB0BgaDA2GBkPDbQH4OQSN0W8qegAAAABJRU5ErkJggg==';
 };
 
+export const hasDefaultDownload = (resource) => {
+    return !isEmpty(resource?.download_urls) && resource.download_urls.some((d) => d.default);
+};
+
 export const getDownloadUrlInfo = (resource) => {
     const hrefUrl = { url: resource?.href, ajaxSafe: false };
     if (isDocumentExternalSource(resource)) {
         return hrefUrl;
     }
-    if (!isEmpty(resource?.download_urls)) {
+    const downloadUrls = resource?.download_urls ?? [];
+    if (!isEmpty(downloadUrls)) {
+
+        // For datasets, use only default download url
+        if (resource?.resource_type === ResourceTypes.DATASET) {
+            const downloadData = downloadUrls.find((d) => d.default);
+            const _url = !isEmpty(downloadData) ? downloadData.url : null;
+            const ajaxSafe = !isEmpty(downloadData) ? downloadData.ajax_safe : false;
+            return { url: _url, ajaxSafe };
+        }
+
         const downloadData = resource.download_urls.length === 1
             ? resource.download_urls[0]
             : resource.download_urls.find((d) => d.default);
@@ -896,6 +1007,35 @@ export const getResourceAdditionalProperties = (_resource = {}) => {
     return {
         ...resource,
         assets: assets.length ? assets : [{_showEmptyState: true}] // add empty state flag to show assets section
+    };
+};
+
+// Normalizes a dataset resource's `data` payload to the shape
+// `{ layerSettings, mapConfig: { map?, crsSelector? } }`. Legacy records stored
+// the layer settings as the top-level `data` object and projection state under
+// `data.crsSelector`; new records nest both halves explicitly. Idempotent on
+// already-normalized payloads so the caller can run it without checking.
+export const parseMapLayerData = (data) => {
+    if (!data || typeof data !== 'object') {
+        return { layerSettings: {}, mapConfig: {} };
+    }
+    if ('layerSettings' in data || 'mapConfig' in data) {
+        return {
+            layerSettings: data.layerSettings ?? {},
+            mapConfig: data.mapConfig ?? {}
+        };
+    }
+    const legacyCrsSelector = data.crsSelector;
+    return {
+        layerSettings: omit(data, ['crsSelector']),
+        mapConfig: {
+            ...(legacyCrsSelector?.currentProjection && {
+                map: { projection: legacyCrsSelector.currentProjection }
+            }),
+            ...(legacyCrsSelector?.projectionList && {
+                crsSelector: { projectionList: legacyCrsSelector.projectionList }
+            })
+        }
     };
 };
 
@@ -978,4 +1118,17 @@ export const canManageResourceSettings = (resource) => {
 export const canAccessPermissions = (resource) => {
     const { perms } = resource || {};
     return perms?.includes('change_resourcebase_permissions');
+};
+
+/**
+ * Check if the resource can be edited (for map resources)
+ * @param {Object} gnresource - The state of the resource
+ * @param {Object} options - The options for the check
+ * @param {boolean} options.isNewCheck - True if the check should be done for a new resource, false otherwise
+ * @returns {boolean} - True if the resource can be edited, false otherwise
+ */
+export const canEditMap = (gnresource, { resourceTypes = [ResourceTypes.MAP], isNewCheck = false } = {}) => {
+    const { data = {}, type, isNew } = gnresource;
+    const hasEditPermission = data?.perms?.includes('change_resourcebase');
+    return type && resourceTypes.includes(type) && (hasEditPermission || (isNewCheck && isNew)) ? true : false;
 };

@@ -26,10 +26,12 @@ import {
     UPLOADS,
     EXECUTION_REQUEST
 } from '@js/api/geonode/v2/constants';
+import { canAddRemoteResource } from '@js/selectors/resource';
 
 function UploadDataset({
     refreshTime = 3000,
-    uploadConfig
+    uploadConfig,
+    enableRemoteUploads = false
 }) {
 
     const api = {
@@ -87,8 +89,8 @@ function UploadDataset({
     });
     return (
         <UploadPanel
-            enableRemoteUploads
-            supportedFiles={getSupportedFilesByResourceType('dataset', { actions: ['upload'] })}
+            enableRemoteUploads={enableRemoteUploads}
+            supportedFiles={getSupportedFilesByResourceType('dataset', ['upload'])}
             maxParallelUploads={getMaxParallelUploads()}
             maxAllowedSize={getMaxAllowedSizeByResourceType('dataset')}
             progress={progress}
@@ -104,7 +106,9 @@ function UploadDataset({
                 remoteType: '3dtiles'
             })}
             remoteTypes={[
-                { value: '3dtiles', label: '3D Tiles' }
+                { value: '3dtiles', label: '3D Tiles' },
+                { value: 'cog', label: 'COG' },
+                { value: 'flatgeobuf', label: 'FlatGeobuf' }
             ]}
             remoteTypeErrorMessageId="gnviewer.unsupportedUrlServiceType"
         >
@@ -129,7 +133,7 @@ UploadDataset.defaultProps = {
 };
 
 const ConnectedUploadDataset = connect(
-    createSelector([], () => ({}))
+    createSelector([canAddRemoteResource], (enableRemoteUploads) => ({ enableRemoteUploads }))
 )(UploadDataset);
 
 export default ConnectedUploadDataset;
