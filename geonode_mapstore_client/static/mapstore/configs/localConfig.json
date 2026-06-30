@@ -1550,6 +1550,9 @@
                             "labelId": "gnviewer.resource",
                             "showPendingChangesIcon": true,
                             "type": "dropdown",
+                            "toggleAttributes": {
+                                "cy-data": "map-view-navbar-resource"
+                            },
                             "disableIf": "{!state('isNewResource') && !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.canCopyResource(state('gnResourceData'), state('user')) && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase')}",
                             "items": [
                                 {
@@ -1591,12 +1594,18 @@
                         {
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
+                            "toggleAttributes": {
+                                "cy-data": "map-view-navbar-edit"
+                            },
                             "disableIf": "{state('isNewResource') || !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
                                 {
                                     "type": "link",
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
-                                    "labelId": "gnviewer.editMetadata"
+                                    "labelId": "gnviewer.editMetadata",
+                                    "menuItemAttributes": {
+                                        "cy-data": "map-view-navbar-edit-metadata"
+                                    }
                                 },
                                 {
                                     "type": "divider",
@@ -2285,6 +2294,9 @@
                             "labelId": "gnviewer.resource",
                             "showPendingChangesIcon": true,
                             "type": "dropdown",
+                            "toggleAttributes": {
+                                "cy-data": "geostory-view-navbar-resource"
+                            },
                             "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase') && !state('isNewResource') && !context.canCopyResource(state('gnResourceData'), state('user'))}",
                             "items": [
                                 {
@@ -2335,12 +2347,18 @@
                         {
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
+                            "toggleAttributes": {
+                                "cy-data": "geostory-view-navbar-edit"
+                            },
                             "disableIf": "{state('isNewResource') || !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
                                 {
                                     "type": "link",
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
-                                    "labelId": "gnviewer.editMetadata"
+                                    "labelId": "gnviewer.editMetadata",
+                                    "menuItemAttributes": {
+                                        "cy-data": "geostory-view-navbar-edit-metadata"
+                                    }
                                 }
                             ]
                         },
@@ -2473,6 +2491,9 @@
                             "labelId": "gnviewer.resource",
                             "type": "dropdown",
                             "showPendingChangesIcon": true,
+                            "toggleAttributes": {
+                                "cy-data": "document-view-navbar-resource"
+                            },
                             "disableIf": "{!(context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') || context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase') || (context.canCopyResource(state('gnResourceData'), state('user')) && context.resourceHasPermission(state('gnResourceData'), 'download_resourcebase') && (state('isNewResource') || state('selectedLayerPermissions').includes('download_resourcebase'))))}",
                             "items": [
                                 {
@@ -2513,12 +2534,18 @@
                         {
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
+                            "toggleAttributes": {
+                                "cy-data": "document-view-navbar-edit"
+                            },
                             "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
                                 {
                                     "type": "link",
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
-                                    "labelId": "gnviewer.editMetadata"
+                                    "labelId": "gnviewer.editMetadata",
+                                    "menuItemAttributes": {
+                                        "cy-data": "document-view-navbar-edit-metadata"
+                                    }
                                 }
                             ]
                         },
@@ -2596,6 +2623,9 @@
                             "labelId": "gnviewer.resource",
                             "type": "dropdown",
                             "showPendingChangesIcon": true,
+                            "toggleAttributes": {
+                                "cy-data": "dashboard-view-navbar-resource"
+                            },
                             "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !state('isNewResource') && !context.canCopyResource(state('gnResourceData'), state('user')) && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase')}",
                             "items": [
                                 {
@@ -3576,6 +3606,9 @@
                             "labelId": "gnviewer.resource",
                             "showPendingChangesIcon": true,
                             "type": "dropdown",
+                            "toggleAttributes": {
+                                "cy-data": "viewer-navbar-resource"
+                            },
                             "disableIf": "{!state('isNewResource') && !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.canCopyResource(state('gnResourceData'), state('user')) && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase')}",
                             "items": [
                                 {

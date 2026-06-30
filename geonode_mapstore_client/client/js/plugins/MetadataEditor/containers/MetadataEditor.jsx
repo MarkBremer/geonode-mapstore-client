@@ -56,7 +56,8 @@ const metadataCyById = {
     root_contacts_resource_user: 'metadata-edit-contacts-resource-user',
     root_contacts_resource_provider: 'metadata-edit-contacts-resource-provider',
     root_contacts_originator: 'metadata-edit-contacts-originator',
-    root_contacts_principal_investigator: 'metadata-edit-contacts-investigator'
+    root_contacts_principal_investigator: 'metadata-edit-contacts-investigator',
+    root_is_published: 'metadata-edit-published'
 };
 
 function applyMetadataCyTags() {

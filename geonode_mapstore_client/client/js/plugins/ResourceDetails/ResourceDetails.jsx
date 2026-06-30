@@ -105,7 +105,8 @@ function ResourceDetailsPanel({
                 {
                     "type": "text",
                     "labelId": "gnviewer.title",
-                    "value": "{context.get(state('gnResourceData'), 'title')}"
+                    "value": "{context.get(state('gnResourceData'), 'title')}",
+                    "cy-data": "resource-metadata-info-value"
                 },
                 {
                     "type": "link",
@@ -211,7 +212,8 @@ function ResourceDetailsPanel({
                     "style": "label",
                     "labelId": "gnviewer.viewFullMetadata",
                     "href": "{context.getMetadataDetailUrl(state('gnResourceData'))}",
-                    "disableIf": "{!context.getMetadataDetailUrl(state('gnResourceData'))}"
+                    "disableIf": "{!context.getMetadataDetailUrl(state('gnResourceData'))}",
+                    "cy-data": "metadata-view-full"
                 }
             ]
         },
@@ -335,6 +337,7 @@ function ResourceDetailsPanel({
         <TargetSelectorPortal targetSelector={targetSelector}>
             <ResourcesPanelWrapper
                 className="ms-resource-detail shadow-xl"
+                cy-data="resource-detail-view"
                 top={stickyTop}
                 bottom={stickyBottom}
                 show={show}

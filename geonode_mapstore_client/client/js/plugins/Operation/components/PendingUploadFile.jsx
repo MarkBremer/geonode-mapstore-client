@@ -28,7 +28,7 @@ function PendingUploadFile({
     const missingMainFile = uploadMissingExtension.length === 1 && uploadMissingExtension[0] === '*';
     const missingExtensions = missingMainFile ? [] : uploadMissingExtension;
     return (
-        <div className="gn-upload-card">
+        <div className="gn-upload-card" cy-data={dataCyPrefix}>
             <div className="gn-upload-card-header">
                 {(missingExtensions.length > 0 || missingMainFile) ? <div className="gn-upload-card-error"><Glyphicon glyph="exclamation-sign" /></div> : null}
                 <div className="gn-upload-card-title" cy-data={`${dataCyPrefix}-title`}>{baseName}</div>

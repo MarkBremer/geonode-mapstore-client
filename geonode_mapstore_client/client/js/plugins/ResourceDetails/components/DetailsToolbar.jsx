@@ -140,6 +140,7 @@ function DetailsToolbar({
                         <Button
                             variant="primary"
                             href={info?.viewerUrl}
+                            cy-data="resource-view"
                             rel="noopener noreferrer">
                             <Message msgId={`gnhome.view${info?.typeName}`} />
                         </Button>
@@ -149,6 +150,7 @@ function DetailsToolbar({
                             <Button
                                 variant="primary"
                                 href={info?.metadataDetailUrl}
+                                cy-data="resource-view"
                                 rel="noopener noreferrer">
                                 <Message msgId={`gnhome.viewMetadata`} />
                             </Button>

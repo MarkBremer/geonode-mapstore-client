@@ -155,12 +155,13 @@ function UploadPanel({
                 activeClassName="gn-dropzone-active"
                 rejectClassName="gn-dropzone-reject"
                 disableClick
+                cy-data="document-upload-page"
             >
                 <ViewerLayout
                     rightColumn={rightColumn}
-                    leftColumn={<div className="gn-upload-list">
-                        <div className="gn-upload-list-header">
-                            <input disabled={disabledAdd} ref={inputFile} value="" type="file" multiple onChange={(event) => handleFile([...event?.target?.files])} style={{ display: 'none' }} />
+                    leftColumn={<div className="gn-upload-list" cy-data="document-upload-list">
+                        <div className="gn-upload-list-header" cy-data="document-upload-header">
+                            <input disabled={disabledAdd} ref={inputFile} value="" type="file" multiple onChange={(event) => handleFile([...event?.target?.files])} style={{ display: 'none' }} cy-data="document-upload-file-input" />
                             <Button
                                 disabled={disabledAdd}
                                 cy-data="btn-select-files"

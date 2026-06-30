@@ -37,7 +37,7 @@ function ExecutionRequestTable({
 
     if (!requests.length) {
         return (
-            <div className="gn-upload-processing">
+            <div className="gn-upload-processing" cy-data="document-upload-processing">
                 <div className="gn-main-event-container">
                     <div className="gn-main-event-content">
                         <div className="gn-main-event-text">
@@ -68,7 +68,7 @@ function ExecutionRequestTable({
 
     const { viewResource = true, editMetadata, viewResourceLabelId, editMetadataLabelId } = props;
     return (
-        <div className="gn-upload-processing">
+        <div className="gn-upload-processing" cy-data="document-upload-processing">
             <div className="gn-upload-processing-list">
                 <table className="table">
                     <thead>
@@ -124,9 +124,11 @@ function ExecutionRequestTable({
                                             ? <Glyphicon glyph="check" />
                                             : null}
                                         {onReload && request.status === 'finished'
-                                            ? <Button variant="primary" onClick={() => onReload()}>
-                                                <Message msgId={'gnviewer.reload'} />
-                                            </Button>
+                                            ? <div cy-data="metadata-upload-success">
+                                                <Button variant="primary" cy-data="metadata-return-to-dataset" onClick={() => onReload()}>
+                                                    <Message msgId={'gnviewer.reload'} />
+                                                </Button>
+                                            </div>
                                             : null}
                                     </td>
                                     <td>

@@ -491,7 +491,8 @@ export const getResourceStatuses = (resource, userInfo) => {
                 type: 'icon',
                 tooltipId: !isApproved ? 'gnviewer.pendingApproval' : 'gnviewer.pendingPublish',
                 glyph: 'info-circle',
-                className: 'gn-resource-status-pending'
+                className: 'gn-resource-status-pending',
+                'cy-data': 'resource-status-pending'
             }] : []),
             ...(resource.advertised === false ? [{
                 type: 'icon',
