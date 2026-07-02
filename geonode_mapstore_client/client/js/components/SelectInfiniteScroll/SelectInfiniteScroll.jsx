@@ -140,7 +140,7 @@ function SelectInfiniteScroll({
         });
     };
 
-    // Custom components with cy-data attributes
+    // Custom components with data-ms-id attributes
     const customComponents = {
         Option: (optionProps) => {
             const { innerRef, innerProps, data, ...restProps } = optionProps;
@@ -149,7 +149,7 @@ function SelectInfiniteScroll({
                     ref={innerRef}
                     {...innerProps}
                     {...restProps}
-                    cy-data={`metadata-autocomplete-option-${data?.[valueKey] || ''}`}
+                    data-ms-id={`metadata-autocomplete-option-${data?.[valueKey] || ''}`}
                     style={{ ...optionProps.getStyles?.('option', optionProps), cursor: 'pointer' }}
                 >
                     {optionProps.children}
@@ -163,7 +163,7 @@ function SelectInfiniteScroll({
                     ref={innerRef}
                     {...innerProps}
                     {...restProps}
-                    cy-data="metadata-autocomplete-menu"
+                    data-ms-id="metadata-autocomplete-menu"
                     style={{ ...menuProps.getStyles?.('menu', menuProps) }}
                 >
                     {menuProps.children}

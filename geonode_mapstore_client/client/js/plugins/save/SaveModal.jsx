@@ -69,10 +69,10 @@ function SaveModal({
             return;
         }
         const modalContainer = currentModal.current.querySelector('#ms-resizable-modal');
-        modalContainer?.setAttribute('cy-data', 'dataset-save-box');
+        modalContainer?.setAttribute('data-ms-id', 'dataset-save-box');
 
         const topCloseButton = currentModal.current.querySelector('.modal-header .square-button');
-        topCloseButton?.setAttribute('cy-data', 'dataset-save-box-close-top');
+        topCloseButton?.setAttribute('data-ms-id', 'dataset-save-box-close-top');
     }, [enabled, isLoading]);
 
     const handleEnterPress = options => {
@@ -104,14 +104,14 @@ function SaveModal({
                         : [
                             {
                                 text: <Message msgId="close"/>,
-                                'cy-data': 'dataset-save-box-close',
+                                'data-ms-id': 'dataset-save-box-close',
                                 onClick: () => onClose()
                             },
                             {
                                 text: <Message msgId={labelId}/>,
                                 disabled: !!nameValidation,
                                 bsStyle: 'primary',
-                                'cy-data': 'dataset-save-box-save',
+                                'data-ms-id': 'dataset-save-box-save',
                                 onClick: () => onSave(
                                     update ? contentId : undefined,
                                     {
@@ -141,7 +141,7 @@ function SaveModal({
                             <FormControl
                                 autoFocus
                                 placeholder="gnviewer.titlePlaceholder"
-                                {...{ 'cy-data': 'dataset-save-box-input' }}
+                                {...{ 'data-ms-id': 'dataset-save-box-input' }}
                                 value={name}
                                 onChange={(event) => {
                                     setName(event.target.value);

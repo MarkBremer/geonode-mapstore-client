@@ -38,12 +38,12 @@ const DownloadButton = ({
     onAction = () => {},
     renderType = "button",
     showIcon,
-    dataCy,
+    dataMsId,
     downloadMsgId = "gnviewer.download",
     tooltipId = downloadMsgId, // for backward compatibility
     allowedSources = [SOURCE_TYPES.LOCAL, SOURCE_TYPES.REMOTE],
     downloading,
-    ['cy-data']: cyDataProp,
+    ['data-ms-id']: dataMsIdProp,
     ...props
 }) => {
     const Component =  RENDER_TYPE[renderType];
@@ -52,7 +52,7 @@ const DownloadButton = ({
     const downloadInfo = getDownloadUrlInfo(_resource);
     const isExternal = isDocumentExternalSource(_resource);
     const isNotAjaxSafe = !Boolean(downloadInfo?.ajaxSafe);
-    const resolvedDataCy = cyDataProp || dataCy;
+    const resolvedDataMsId = dataMsIdProp || dataMsId;
 
     if ((isEmpty(_resource?.download_urls) && !_resource?.perms?.includes('download_resourcebase'))
         || !_resource?.perms?.includes('download_resourcebase')
@@ -68,7 +68,7 @@ const DownloadButton = ({
             <Component
                 {...isButton && { variant, size }}
                 {...showIcon && { tooltipId }}
-                {...resolvedDataCy ? { 'cy-data': resolvedDataCy } : {}}
+                {...resolvedDataMsId ? { 'data-ms-id': resolvedDataMsId } : {}}
                 {...props}
                 download
                 href={ downloadInfo.url }
@@ -89,7 +89,7 @@ const DownloadButton = ({
             onClick={() => downloading ? null : onAction(_resource)}
             {...isButton && { variant, size}}
             {...showIcon && { tooltipId }}
-            {...resolvedDataCy ? { 'cy-data': resolvedDataCy } : {}}
+            {...resolvedDataMsId ? { 'data-ms-id': resolvedDataMsId } : {}}
             {...props}
         >
             {showIcon

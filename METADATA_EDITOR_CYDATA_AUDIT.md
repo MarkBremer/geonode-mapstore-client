@@ -1,18 +1,18 @@
-# MetadataEditor Plugin - cy-data Audit Report
+# MetadataEditor Plugin - data-ms-id Audit Report
 
 **Report Date**: 2026-06-23  
 **Scope**: geonode-mapstore-client MetadataEditor plugin and related components  
-**Status**: Complete - 19+ missing cy-data attributes identified
+**Status**: Complete - 19+ missing data-ms-id attributes identified
 
 ---
 
 ## Executive Summary
 
-The MetadataEditor plugin and related components have **incomplete cy-data attribute coverage**. While the main form container and field labels have cy-data attributes applied via `applyMetadataCyTags()`, **interactive elements** (buttons, form controls, dropdown options, array operations) lack cy-data attributes. This audit identifies **19+ missing cy-data attributes** across 13 files.
+The MetadataEditor plugin and related components have **incomplete data-ms-id attribute coverage**. While the main form container and field labels have data-ms-id attributes applied via `applyMetadataMsIdTags()`, **interactive elements** (buttons, form controls, dropdown options, array operations) lack data-ms-id attributes. This audit identifies **19+ missing data-ms-id attributes** across 13 files.
 
 ---
 
-## Missing cy-data Attributes by Location
+## Missing data-ms-id Attributes by Location
 
 ### 1. ⛔ **CRITICAL - SelectInfiniteScroll Component**
 
@@ -20,9 +20,9 @@ The MetadataEditor plugin and related components have **incomplete cy-data attri
 **Lines**: 145-163 (SelectSync component rendering)  
 **Priority**: HIGH  
 
-**Issue**: The react-select dropdown renders options without cy-data attributes.
+**Issue**: The react-select dropdown renders options without data-ms-id attributes.
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Container/Control element
 - Menu/dropdown wrapper
 - Individual option list items
@@ -32,10 +32,10 @@ The MetadataEditor plugin and related components have **incomplete cy-data attri
 ```jsx
 // Add custom components to SelectSync
 const customComponents = {
-  Control: (props) => <div cy-data="metadata-autocomplete-control" {...props} />,
-  Menu: (props) => <div cy-data="metadata-autocomplete-menu" {...props} />,
+  Control: (props) => <div data-ms-id="metadata-autocomplete-control" {...props} />,
+  Menu: (props) => <div data-ms-id="metadata-autocomplete-menu" {...props} />,
   Option: (props) => (
-    <div cy-data={`metadata-autocomplete-option-${props.data.value}`} {...props}>
+    <div data-ms-id={`metadata-autocomplete-option-${props.data.value}`} {...props}>
       {props.children}
     </div>
   )
@@ -52,9 +52,9 @@ const customComponents = {
 ### 2. ⛔ **CRITICAL - Form Submit Button (rjsf)**
 
 **File**: `node_modules/@rjsf/core/lib/components/Form.jsx` (external dependency)  
-**Issue**: The default rjsf Form component renders submit button without cy-data  
+**Issue**: The default rjsf Form component renders submit button without data-ms-id  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Submit button
 - Form-actions container
 - Cancel/Reset buttons (if configured)
@@ -63,8 +63,8 @@ const customComponents = {
 ```jsx
 function SubmitButton({ uiSchema, formContext }) {
   return (
-    <div className="form-actions" cy-data="metadata-edit-actions">
-      <button type="submit" cy-data="metadata-edit-submit" className="btn btn-primary">
+    <div className="form-actions" data-ms-id="metadata-edit-actions">
+      <button type="submit" data-ms-id="metadata-edit-submit" className="btn btn-primary">
         Save
       </button>
     </div>
@@ -90,7 +90,7 @@ export default {
 **Lines**: 44-63  
 **Priority**: MEDIUM  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - MoveUpButton (L50)
 - MoveDownButton (L56)
 - RemoveButton (L62)
@@ -112,7 +112,7 @@ function AddButton({ onClick, disabled, uiSchema, registry, index, field }) {
       className="square-button-md"
       onClick={onClick}
       variant="primary"
-      cy-data={`array-field-${field}-add`}
+      data-ms-id={`array-field-${field}-add`}
     >
       <Glyphicon glyph="plus" />
     </Button>
@@ -125,7 +125,7 @@ function MoveUpButton({ onClick, disabled, index, idSchema }) {
       disabled={disabled}
       className="square-button-md"
       onClick={onClick}
-      cy-data={`array-item-${index}-move-up`}
+      data-ms-id={`array-item-${index}-move-up`}
     >
       <Glyphicon glyph="arrow-up" />
     </Button>
@@ -138,7 +138,7 @@ function MoveDownButton({ onClick, disabled, index }) {
       disabled={disabled}
       className="square-button-md"
       onClick={onClick}
-      cy-data={`array-item-${index}-move-down`}
+      data-ms-id={`array-item-${index}-move-down`}
     >
       <Glyphicon glyph="arrow-down" />
     </Button>
@@ -151,7 +151,7 @@ function RemoveButton({ onClick, disabled, index }) {
       disabled={disabled}
       className="square-button-md"
       onClick={onClick}
-      cy-data={`array-item-${index}-remove`}
+      data-ms-id={`array-item-${index}-remove`}
     >
       <Glyphicon glyph="trash" />
     </Button>
@@ -169,7 +169,7 @@ function RemoveButton({ onClick, disabled, index }) {
 **Lines**: 38-63  
 **Priority**: MEDIUM  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Form group container (L38)
 - Label element (L39)
 - SelectInfiniteScroll wrapper (L56)
@@ -189,16 +189,16 @@ function RemoveButton({ onClick, disabled, index }) {
 
 **Recommended Solution**:
 ```jsx
-<div id={id} className={`form-group...`} cy-data={`${id}-group`}>
-  {showLabel ? <label className="control-label" htmlFor={id} cy-data={`${id}-label`}>
+<div id={id} className={`form-group...`} data-ms-id={`${id}-group`}>
+  {showLabel ? <label className="control-label" htmlFor={id} data-ms-id={`${id}-label`}>
     {title || name}
     ...
   </label> : null}
   <SelectInfiniteScroll 
     {...props}
-    cy-data={`${id}-autocomplete`}
+    data-ms-id={`${id}-autocomplete`}
   />
-  {error && <div cy-data={`${id}-error`}>{error}</div>}
+  {error && <div data-ms-id={`${id}-error`}>{error}</div>}
 </div>
 ```
 
@@ -212,7 +212,7 @@ function RemoveButton({ onClick, disabled, index }) {
 **Lines**: 14-28  
 **Priority**: MEDIUM  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Label wrapper (L15-17)
 - WrapIfAdditionalTemplate wrapper
 
@@ -236,12 +236,12 @@ return (
 **Recommended Solution**:
 ```jsx
 return (
-  <WrapIfAdditionalTemplate {...props} cy-data={`${id}-wrapper`}>
+  <WrapIfAdditionalTemplate {...props} data-ms-id={`${id}-wrapper`}>
     {displayLabel &&
       <label 
         className={`control-label...`} 
         htmlFor={id}
-        cy-data={`${id}-label`}
+        data-ms-id={`${id}-label`}
       >
         {label}
         {required && <span className="required">{' '}*</span>}
@@ -264,7 +264,7 @@ return (
 **Lines**: 40-48  
 **Priority**: MEDIUM  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - AddButton component (L44-48)
 
 **Current Code**:
@@ -280,7 +280,7 @@ return (
 )}
 ```
 
-**Recommended Solution**: Pass cy-data to AddButton:
+**Recommended Solution**: Pass data-ms-id to AddButton:
 ```jsx
 {canAdd && (
   <AddButton
@@ -289,21 +289,21 @@ return (
     disabled={disabled || readonly}
     uiSchema={uiSchema}
     registry={registry}
-    cy-data={`array-field-${idSchema.$id}-add`}
+    data-ms-id={`array-field-${idSchema.$id}-add`}
   />
 )}
 ```
 
 And update `AddButton` in `_templates/index.js`:
 ```jsx
-function AddButton({ onClick, disabled, cy-data }) {
+function AddButton({ onClick, disabled, data-ms-id }) {
   return (
     <Button
       disabled={disabled}
       className="square-button-md"
       onClick={onClick}
       variant="primary"
-      cy-data={cy-data}
+      data-ms-id={data-ms-id}
     >
       <Glyphicon glyph="plus" />
     </Button>
@@ -321,7 +321,7 @@ function AddButton({ onClick, disabled, cy-data }) {
 **Lines**: 42-75 (RootMetadata component)  
 **Priority**: MEDIUM  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Group expand/collapse button (L46-49)
 - Group property navigation button (L56-59)
 - Metadata title navigation button (L90)
@@ -350,7 +350,7 @@ function AddButton({ onClick, disabled, cy-data }) {
   <Button 
     className={...}
     size="xs"
-    cy-data={`metadata-group-${groupKey}-toggle`}
+    data-ms-id={`metadata-group-${groupKey}-toggle`}
     onClick={() => setExpanded(...)}
   >
     <Glyphicon glyph={expanded ? "bottom" : "next"} />{' '}{title}...
@@ -361,7 +361,7 @@ function AddButton({ onClick, disabled, cy-data }) {
         <Button 
           size="xs"
           className={...}
-          cy-data={`metadata-group-${groupKey}-${property.name}`}
+          data-ms-id={`metadata-group-${groupKey}-${property.name}`}
           onClick={() => scrollIntoView(...)}
         >
           {property.title}...
@@ -376,7 +376,7 @@ function AddButton({ onClick, disabled, cy-data }) {
   <li>
     <Button 
       size="xs"
-      cy-data="metadata-title-nav"
+      data-ms-id="metadata-title-nav"
       onClick={() => scrollIntoView(metadataTitleId)}
     >
       <Message msgId="gnviewer.metadataFor" /> {metadataTitle}
@@ -395,7 +395,7 @@ function AddButton({ onClick, disabled, cy-data }) {
 **Lines**: 10-18  
 **Priority**: LOW  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Label element (L11-16)
 
 **Current Code**:
@@ -411,7 +411,7 @@ function AddButton({ onClick, disabled, cy-data }) {
 ```jsx
 <label 
   className={formContext?.capitalizeTitle ? 'capitalize' : ''}
-  cy-data={`${id}-title`}
+  data-ms-id={`${id}-title`}
 >
   {title}
   {required && <span className="required">{' '}*</span>}
@@ -429,7 +429,7 @@ function AddButton({ onClick, disabled, cy-data }) {
 **Lines**: 14-27  
 **Priority**: LOW  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Editor container wrapper
 
 **Current Code**:
@@ -445,7 +445,7 @@ function AddButton({ onClick, disabled, cy-data }) {
 
 **Recommended Solution**:
 ```jsx
-<div cy-data={`${props.id}-rich-editor`} className="gn-rich-text-editor">
+<div data-ms-id={`${props.id}-rich-editor`} className="gn-rich-text-editor">
   <Editor
     {...props}
     editorState={editorState}
@@ -473,7 +473,7 @@ function AddButton({ onClick, disabled, cy-data }) {
 function SelectWidget(props) {
   const { id } = props;
   return (
-    <div cy-data={`${id}-select-widget`}>
+    <div data-ms-id={`${id}-select-widget`}>
       <DefaultSelectWidget {...props} />
     </div>
   );
@@ -490,7 +490,7 @@ function SelectWidget(props) {
 **Lines**: 18-21  
 **Priority**: LOW  
 
-**Issue**: If using DefaultTextareaWidget, no cy-data is added
+**Issue**: If using DefaultTextareaWidget, no data-ms-id is added
 
 **Recommended Solution**:
 ```jsx
@@ -508,7 +508,7 @@ function TextareaWidget(props) {
     );
   }
   return (
-    <div cy-data={`${id}-textarea-widget`}>
+    <div data-ms-id={`${id}-textarea-widget`}>
       <DefaultTextareaWidget {...props} />
     </div>
   );
@@ -525,12 +525,12 @@ function TextareaWidget(props) {
 **Lines**: 120-130 (non-root ObjectField)  
 **Priority**: LOW  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - ObjectField container div (L121)
 
 **Recommended Solution**:
 ```jsx
-<div id={idSchema.$id} cy-data={`${idSchema.$id}-object-field`}>
+<div id={idSchema.$id} data-ms-id={`${idSchema.$id}-object-field`}>
   {/* existing content */}
 </div>
 ```
@@ -545,13 +545,13 @@ function TextareaWidget(props) {
 **Lines**: 36-43  
 **Priority**: LOW  
 
-**Missing cy-data**:
+**Missing data-ms-id**:
 - Array field header container
 
 **Recommended Solution**:
 ```jsx
-<div id={idSchema.$id} className="field-array" cy-data={`${idSchema.$id}-array-field`}>
-  <div className="field-array-header" cy-data={`${idSchema.$id}-header`}>
+<div id={idSchema.$id} className="field-array" data-ms-id={`${idSchema.$id}-array-field`}>
+  <div className="field-array-header" data-ms-id={`${idSchema.$id}-header`}>
     {/* existing header content */}
   </div>
   {/* rest of content */}
@@ -565,36 +565,36 @@ function TextareaWidget(props) {
 ## Implementation Priority & Action Items
 
 ### Phase 1: CRITICAL (Do First)
-- [ ] **SelectInfiniteScroll**: Add custom react-select components with cy-data
-- [ ] **Submit Button**: Create rjsf SubmitButton template override with cy-data
+- [ ] **SelectInfiniteScroll**: Add custom react-select components with data-ms-id
+- [ ] **Submit Button**: Create rjsf SubmitButton template override with data-ms-id
 - [ ] **Array Buttons**: Update button templates (AddButton, MoveUpButton, MoveDownButton, RemoveButton)
 
 ### Phase 2: HIGH (Do Soon)
-- [ ] **Autocomplete**: Add cy-data to form group, label, and component wrapper
-- [ ] **FieldTemplate**: Add cy-data to label and wrapper elements
-- [ ] **Group Navigation**: Add cy-data to metadata group buttons
+- [ ] **Autocomplete**: Add data-ms-id to form group, label, and component wrapper
+- [ ] **FieldTemplate**: Add data-ms-id to label and wrapper elements
+- [ ] **Group Navigation**: Add data-ms-id to metadata group buttons
 
 ### Phase 3: MEDIUM (Do Later)
-- [ ] **RichTextEditor**: Add container wrapper with cy-data
-- [ ] **SelectWidget**: Wrap with cy-data container
-- [ ] **TextareaWidget**: Wrap with cy-data container
+- [ ] **RichTextEditor**: Add container wrapper with data-ms-id
+- [ ] **SelectWidget**: Wrap with data-ms-id container
+- [ ] **TextareaWidget**: Wrap with data-ms-id container
 
 ### Phase 4: LOW (Optional)
-- [ ] **ObjectField**: Add cy-data to object field containers
-- [ ] **ArrayField**: Add cy-data to array field containers
-- [ ] **TitleField**: Add cy-data to title labels
+- [ ] **ObjectField**: Add data-ms-id to object field containers
+- [ ] **ArrayField**: Add data-ms-id to array field containers
+- [ ] **TitleField**: Add data-ms-id to title labels
 
 ---
 
 ## Testing Recommendations
 
-After implementing cy-data attributes:
+After implementing data-ms-id attributes:
 
 1. **Verify with Cypress**:
    ```javascript
-   cy.get('[cy-data="metadata-autocomplete-option-value1"]').click();
-   cy.get('[cy-data="array-item-0-remove"]').click();
-   cy.get('[cy-data="metadata-edit-submit"]').click();
+   cy.get('[data-ms-id="metadata-autocomplete-option-value1"]').click();
+   cy.get('[data-ms-id="array-item-0-remove"]').click();
+   cy.get('[data-ms-id="metadata-edit-submit"]').click();
    ```
 
 2. **Test all form scenarios**:
@@ -606,15 +606,15 @@ After implementing cy-data attributes:
    - Required field validation
 
 3. **Validate with UI inspection**:
-   - Inspect HTML to confirm cy-data presence
-   - Check for cy-data naming consistency
-   - Verify no duplicate cy-data values
+   - Inspect HTML to confirm data-ms-id presence
+   - Check for data-ms-id naming consistency
+   - Verify no duplicate data-ms-id values
 
 ---
 
 ## Summary Table
 
-| Component | File | Line(s) | Missing cy-data | Priority |
+| Component | File | Line(s) | Missing data-ms-id | Priority |
 |-----------|------|---------|-----------------|----------|
 | SelectInfiniteScroll | SelectInfiniteScroll.jsx | 145-163 | Options, Menu, Control | HIGH |
 | Form Submit | rjsf Form.jsx | external | Submit Button, Form Actions | HIGH |
@@ -633,9 +633,9 @@ After implementing cy-data attributes:
 
 ## Notes
 
-- The `applyMetadataCyTags()` function already maps field IDs to cy-data values for the main form fields
-- Consider creating a utility function for consistent cy-data naming patterns
-- react-select requires custom `components` prop to support cy-data on options
+- The `applyMetadataMsIdTags()` function already maps field IDs to data-ms-id values for the main form fields
+- Consider creating a utility function for consistent data-ms-id naming patterns
+- react-select requires custom `components` prop to support data-ms-id on options
 - rjsf may need custom template overrides for button rendering
 - Test thoroughly after implementation to ensure no regression
 

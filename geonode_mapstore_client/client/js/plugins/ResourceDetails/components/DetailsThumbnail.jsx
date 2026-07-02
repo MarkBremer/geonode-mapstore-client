@@ -181,7 +181,7 @@ function DetailsThumbnail({
                                 tooltipId="resourcesCatalog.uploadImage"
                                 tooltipPosition={"top"}
                                 disabled={resourceThumbnailUpdating}
-                                cy-data="dataset-view-sidepanel-btn-upload-image"
+                                data-ms-id="dataset-view-sidepanel-btn-upload-image"
                             >
                                 <Glyphicon glyph="upload"/>
                             </ButtonWithToolTip>
@@ -205,7 +205,7 @@ function DetailsThumbnail({
                                 tooltipId="gnviewer.saveMapThumbnail"
                                 tooltipPosition={"top"}
                                 disabled={resourceThumbnailUpdating}
-                                cy-data="dataset-view-sidepanel-btn-set-image"
+                                data-ms-id="dataset-view-sidepanel-btn-set-image"
                             >
                                 <Glyphicon glyph="1-map"/>
                             </ButtonWithToolTip> : null}
@@ -217,7 +217,7 @@ function DetailsThumbnail({
                                 tooltipId="resourcesCatalog.removeThumbnail"
                                 tooltipPosition={"top"}
                                 disabled={resourceThumbnailUpdating}
-                                cy-data="dataset-view-sidepanel-btn-delete-image"
+                                data-ms-id="dataset-view-sidepanel-btn-delete-image"
                             >
                                 {resourceThumbnailUpdating ? <Spinner /> : <Glyphicon glyph="trash"/>}
                             </ButtonWithToolTip>

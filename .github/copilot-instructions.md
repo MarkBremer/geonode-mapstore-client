@@ -87,7 +87,7 @@ npm run lint
 ```
 
 - Runs: `eslint js --ext .jsx,.js --fix`
-- **Known pre-existing failure:** `js/plugins/SaveAs.jsx` line 115 has `'dataCy' is defined but never used` (`no-unused-vars`). This causes exit code 1. Do not introduce new lint errors.
+- **Known pre-existing failure:** `js/plugins/SaveAs.jsx` line 115 has `'dataMsId' is defined but never used` (`no-unused-vars`). This causes exit code 1. Do not introduce new lint errors.
 
 ### 3. Tests (Karma + webpack)
 
@@ -138,31 +138,31 @@ All workflows use **Node 20** and run `git submodule update --init --recursive` 
 - **Django templates:** `templates/geonode-mapstore-client/_geonode_config.html` is the central template that bridges Django settings to the JS client via `<script>` blocks.
 - **Translations:** GeoNode translations are in `static/mapstore/gn-translations/`; MapStore translations in `static/mapstore/ms-translations/` (auto-copied during compile).
 
-## cy-data Test Automation Attributes
+## data-ms-id Test Automation Attributes
 
-This project uses `cy-data` HTML attributes for Cypress/test automation selectors. The attribute name is **`cy-data`** (not `data-cy`).
+This project uses `data-ms-id` HTML attributes for Cypress/test automation selectors. The attribute name is **`data-ms-id`** (not `data-cy`).
 
-### Pattern for Adding cy-data
+### Pattern for Adding data-ms-id
 
-There are two patterns used to apply `cy-data` attributes:
+There are two patterns used to apply `data-ms-id` attributes:
 
 1. **JSX spread pattern** (most common — used in plugins):
    ```jsx
-   {...(dataCy ? { 'cy-data': dataCy } : {})}
+   {...(dataMsId ? { 'data-ms-id': dataMsId } : {})}
    // or with a default:
-   {...(dataCy ? { 'cy-data': dataCy } : { 'cy-data': 'default-value' })}
+   {...(dataMsId ? { 'data-ms-id': dataMsId } : { 'data-ms-id': 'default-value' })}
    ```
 
 2. **DOM post-render pattern** (for rjsf/third-party forms where you can't control JSX):
    ```jsx
-   element.setAttribute('cy-data', cyDataValue);
+   element.setAttribute('data-ms-id', cyDataValue);
    ```
 
-### How dataCy Flows Through the System
+### How dataMsId Flows Through the System
 
-`dataCy` values are configured in **`static/mapstore/configs/localConfig.json`** as plugin properties, passed through the plugin system as React props, and rendered as `cy-data` HTML attributes.
+`dataMsId` values are configured in **`static/mapstore/configs/localConfig.json`** as plugin properties, passed through the plugin system as React props, and rendered as `data-ms-id` HTML attributes.
 
-Example flow: `localConfig.json` → `ActionNavbar` plugin config → `ActionNavbarMenuItem` component → `cy-data` attribute on `<li>`.
+Example flow: `localConfig.json` → `ActionNavbar` plugin config → `ActionNavbarMenuItem` component → `data-ms-id` attribute on `<li>`.
 
 ### Component → File Mapping (Where UI Elements Are Created)
 
@@ -184,18 +184,18 @@ Example flow: `localConfig.json` → `ActionNavbar` plugin config → `ActionNav
 #### Resource Catalog (Grid of Cards)
 | UI Element | Source File |
 |---|---|
-| Resource card grid container | `node_modules/mapstore/.../ResourcesCatalog/components/ResourcesContainer.jsx` — cy-data: `dataset-card-{idx}` |
-| Individual resource card | `node_modules/mapstore/.../ResourcesCatalog/components/ResourceCard.jsx` — supports `dataCy`, `cardCyPrefix` props → `cy-data` on card, `{prefix}-link`, `{prefix}-title` |
-| Resource card action buttons | `node_modules/mapstore/.../ResourcesCatalog/components/ResourceCardActionButtons.jsx` — `{cardCyPrefix}-actions` |
-| Menu items (dropdowns) | `node_modules/mapstore/.../ResourcesCatalog/components/MenuItem.jsx` — passes `dataCy` through |
+| Resource card grid container | `node_modules/mapstore/.../ResourcesCatalog/components/ResourcesContainer.jsx` — data-ms-id: `dataset-card-{idx}` |
+| Individual resource card | `node_modules/mapstore/.../ResourcesCatalog/components/ResourceCard.jsx` — supports `dataMsId`, `cardMsIdPrefix` props → `data-ms-id` on card, `{prefix}-link`, `{prefix}-title` |
+| Resource card action buttons | `node_modules/mapstore/.../ResourcesCatalog/components/ResourceCardActionButtons.jsx` — `{cardMsIdPrefix}-actions` |
+| Menu items (dropdowns) | `node_modules/mapstore/.../ResourcesCatalog/components/MenuItem.jsx` — passes `dataMsId` through |
 | Favorites button (heart icon) | `js/plugins/Favorites/containers/Favorites.jsx` |
 | Compact catalog (modal select) | `js/components/ResourcesCompactCatalog/ResourcesCompactCatalog.jsx` — class: `gn-resources-catalog` |
 
 #### ActionNavbar (Toolbar at Top of Viewer)
 | UI Element | Source File |
 |---|---|
-| Action navbar container | `js/plugins/ActionNavbar/index.jsx` — cy-data: `dataset-view-navbar` |
-| Navbar menu items (buttons) | `js/plugins/ActionNavbar/index.jsx` (`ActionNavbarMenuItem`) — props: `dataCy` → `cy-data` |
+| Action navbar container | `js/plugins/ActionNavbar/index.jsx` — data-ms-id: `dataset-view-navbar` |
+| Navbar menu items (buttons) | `js/plugins/ActionNavbar/index.jsx` (`ActionNavbarMenuItem`) — props: `dataMsId` → `data-ms-id` |
 | Fullscreen button | `js/plugins/ActionNavbar/buttons.jsx` (`FullScreenActionButton`) |
 | Layer download button | `js/plugins/ActionNavbar/buttons.jsx` (`LayerDownloadActionButton`) |
 
@@ -203,48 +203,48 @@ Example flow: `localConfig.json` → `ActionNavbar` plugin config → `ActionNav
 | UI Element | Source File |
 |---|---|
 | Details panel container | `js/plugins/ResourceDetails/containers/DetailsPanel.jsx` |
-| Details header (title + close) | `node_modules/mapstore/.../ResourcesCatalog/components/DetailsHeader.jsx` — cy-data: `dataset-view-sidepanel-close`, `dataset-view-sidepanel-title` |
-| Details info tabs | `node_modules/mapstore/.../ResourcesCatalog/components/DetailsInfo.jsx` — cy-data on tab titles and `dataset-view-sidepanel-tab-content` |
-| Details toolbar (copy URL, download) | `js/plugins/ResourceDetails/components/DetailsToolbar.jsx` — auto-assigns cy-data based on glyph: `dataset-view-sidepanel-btn-download`, `dataset-view-sidepanel-btn-copy-url`, `dataset-view-sidepanel-btn-copy-ogc` |
+| Details header (title + close) | `node_modules/mapstore/.../ResourcesCatalog/components/DetailsHeader.jsx` — data-ms-id: `dataset-view-sidepanel-close`, `dataset-view-sidepanel-title` |
+| Details info tabs | `node_modules/mapstore/.../ResourcesCatalog/components/DetailsInfo.jsx` — data-ms-id on tab titles and `dataset-view-sidepanel-tab-content` |
+| Details toolbar (copy URL, download) | `js/plugins/ResourceDetails/components/DetailsToolbar.jsx` — auto-assigns data-ms-id based on glyph: `dataset-view-sidepanel-btn-download`, `dataset-view-sidepanel-btn-copy-url`, `dataset-view-sidepanel-btn-copy-ogc` |
 | Details thumbnail | `js/plugins/ResourceDetails/components/DetailsThumbnail.jsx` |
 | Details preview (expandable iframe) | `js/plugins/ResourceDetails/components/DetailsPreview.jsx` |
-| Resource details show button | `js/plugins/ResourceDetails/ResourceDetails.jsx` — supports `dataCy` prop |
+| Resource details show button | `js/plugins/ResourceDetails/ResourceDetails.jsx` — supports `dataMsId` prop |
 
 #### Save / SaveAs / Delete
 | UI Element | Source File |
 |---|---|
-| Save button | `js/plugins/Save.jsx` — cy-data: `save-button` (default) or custom `dataCy` |
-| SaveAs button | `js/plugins/SaveAs.jsx` — cy-data: `btn-save-as` |
-| Save modal dialog | `js/plugins/save/SaveModal.jsx` — cy-data: `dataset-save-box`, `dataset-save-box-close-top`, `dataset-save-box-close`, `dataset-save-box-save`, `dataset-save-box-input` |
-| Delete confirmation dialog | `js/plugins/DeleteResource.jsx` — supports `dataCy` prop |
-| Download button | `js/plugins/DownloadResource.jsx` — supports `dataCy` and `cy-data` props |
-| ISO download button | `js/plugins/downloads/IsoDownload.jsx` — supports `dataCy` prop |
+| Save button | `js/plugins/Save.jsx` — data-ms-id: `save-button` (default) or custom `dataMsId` |
+| SaveAs button | `js/plugins/SaveAs.jsx` — data-ms-id: `btn-save-as` |
+| Save modal dialog | `js/plugins/save/SaveModal.jsx` — data-ms-id: `dataset-save-box`, `dataset-save-box-close-top`, `dataset-save-box-close`, `dataset-save-box-save`, `dataset-save-box-input` |
+| Delete confirmation dialog | `js/plugins/DeleteResource.jsx` — supports `dataMsId` prop |
+| Download button | `js/plugins/DownloadResource.jsx` — supports `dataMsId` and `data-ms-id` props |
+| ISO download button | `js/plugins/downloads/IsoDownload.jsx` — supports `dataMsId` prop |
 | Sync button | `js/plugins/Sync.jsx` |
 
 #### Metadata Editor
 | UI Element | Source File |
 |---|---|
-| Metadata editor form (rjsf) | `js/plugins/MetadataEditor/containers/MetadataEditor.jsx` — uses `metadataCyById` map + `applyMetadataCyTags()` to set cy-data on form fields by DOM ID (e.g., `root_title` → `metadata-edit-title`) |
-| Metadata update button | `js/plugins/MetadataEditor/containers/MetadataUpdateButton.jsx` — cy-data: `metadata-edit-update` |
-| Metadata back button | `js/plugins/MetadataEditor/index.js` — cy-data: `metadata-edit-back` |
-| Metadata viewer modal | `js/plugins/MetadataEditor/MetadataViewer.jsx` — cy-data: `metadata-edit-view` (default) |
+| Metadata editor form (rjsf) | `js/plugins/MetadataEditor/containers/MetadataEditor.jsx` — uses `metadataMsIdById` map + `applyMetadataMsIdTags()` to set data-ms-id on form fields by DOM ID (e.g., `root_title` → `metadata-edit-title`) |
+| Metadata update button | `js/plugins/MetadataEditor/containers/MetadataUpdateButton.jsx` — data-ms-id: `metadata-edit-update` |
+| Metadata back button | `js/plugins/MetadataEditor/index.js` — data-ms-id: `metadata-edit-back` |
+| Metadata viewer modal | `js/plugins/MetadataEditor/MetadataViewer.jsx` — data-ms-id: `metadata-edit-view` (default) |
 | Custom form widgets | `js/plugins/MetadataEditor/components/_widgets/` (TextareaWidget, SelectWidget, RichTextEditor) |
 | Custom form templates | `js/plugins/MetadataEditor/components/_templates/` (FieldTemplate, TitleFieldTemplate, ArrayFieldTemplate, ObjectFieldTemplate) |
 
 #### Upload / Operations
 | UI Element | Source File |
 |---|---|
-| Upload panel (drag & drop) | `js/plugins/Operation/components/UploadPanel.jsx` — cy-data: `btn-select-files`, `btn-add-from-url`, `upload-card-{idx}`, `btn-upload` |
-| Pending upload file card | `js/plugins/Operation/components/PendingUploadFile.jsx` — cy-data: `{prefix}-title`, `{prefix}-btn-remove`, `{prefix}-ul-filetype`, `{prefix}-size` |
-| Execution request table | `js/plugins/Operation/components/ExecutionRequestTable.jsx` — cy-data: `upload-list-{idx}`, `upload-list-{idx}-title`, `upload-list-{idx}-created`, `upload-list-{idx}-processing`, `upload-list-{idx}-btn-view`, `upload-list-{idx}-btn-remove` |
-| Operation button | `js/plugins/Operation/index.jsx` — supports `dataCy` prop |
+| Upload panel (drag & drop) | `js/plugins/Operation/components/UploadPanel.jsx` — data-ms-id: `btn-select-files`, `btn-add-from-url`, `upload-card-{idx}`, `btn-upload` |
+| Pending upload file card | `js/plugins/Operation/components/PendingUploadFile.jsx` — data-ms-id: `{prefix}-title`, `{prefix}-btn-remove`, `{prefix}-ul-filetype`, `{prefix}-size` |
+| Execution request table | `js/plugins/Operation/components/ExecutionRequestTable.jsx` — data-ms-id: `upload-list-{idx}`, `upload-list-{idx}-title`, `upload-list-{idx}-created`, `upload-list-{idx}-processing`, `upload-list-{idx}-btn-view`, `upload-list-{idx}-btn-remove` |
+| Operation button | `js/plugins/Operation/index.jsx` — supports `dataMsId` prop |
 
 #### Export / Download Dialog
 | UI Element | Source File |
 |---|---|
-| Export dialog | `node_modules/mapstore/.../components/data/download/DownloadDialog.jsx` — cy-data: `dataset-export-box`, `dataset-export-box-close`, `dataset-export-box-export` |
-| Format select | `node_modules/mapstore/.../components/data/download/DownloadOptions.jsx` — cy-data: `dataset-export-select-format` |
-| Advanced options (SRS) | `node_modules/mapstore/.../components/data/download/DownloadWPSOptions.jsx` — cy-data: `dataset-export-toggle-advanced`, `dataset-export-select-reference-system` |
+| Export dialog | `node_modules/mapstore/.../components/data/download/DownloadDialog.jsx` — data-ms-id: `dataset-export-box`, `dataset-export-box-close`, `dataset-export-box-export` |
+| Format select | `node_modules/mapstore/.../components/data/download/DownloadOptions.jsx` — data-ms-id: `dataset-export-select-format` |
+| Advanced options (SRS) | `node_modules/mapstore/.../components/data/download/DownloadWPSOptions.jsx` — data-ms-id: `dataset-export-toggle-advanced`, `dataset-export-select-reference-system` |
 
 #### Media Viewers
 | UI Element | Source File |
@@ -266,14 +266,14 @@ Example flow: `localConfig.json` → `ActionNavbar` plugin config → `ActionNav
 | Create dataset form | `js/plugins/CreateDataset/containers/CreateDataset.jsx` |
 | Execution tracker | `js/plugins/ExecutionTracker/index.jsx` |
 
-### dataCy Values in localConfig.json
+### dataMsId Values in localConfig.json
 
-`dataCy` values for ActionNavbar items are defined in `static/mapstore/configs/localConfig.json`. Current values include:
+`dataMsId` values for ActionNavbar items are defined in `static/mapstore/configs/localConfig.json`. Current values include:
 - `dataset-view-navbar-properties`, `dataset-view-navbar-resource-save`, `dataset-view-navbar-resource-save-as`, `dataset-view-navbar-resource-delete`
 - `dataset-view-navbar-view-metadata`, `dataset-view-navbar-edit-upload-style`, `dataset-view-navbar-edit-upload-metadata`, `dataset-view-navbar-edit-upload-dataset`
 - `dataset-view-navbar-download-dataset`, `dataset-view-navbar-download-export`, `dataset-view-navbar-download-iso-metadata`
 - `dataset-view-navbar-share`, `dataset-view-navbar-filter`
-- Dropdown toggle: `cy-data` attribute set via `toggleAttributes` (e.g., `dataset-view-navbar-resource`)
+- Dropdown toggle: `data-ms-id` attribute set via `toggleAttributes` (e.g., `dataset-view-navbar-resource`)
 
 ## Common Pitfalls
 

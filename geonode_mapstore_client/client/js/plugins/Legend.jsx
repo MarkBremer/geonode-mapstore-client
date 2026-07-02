@@ -44,7 +44,7 @@ function Legend({
         setExpandLegend(ex => !ex);
     };
 
-    // Apply cy-data attributes to layer items after rendering
+    // Apply data-ms-id attributes to layer items after rendering
     useEffect(() => {
         if (expandLegend && tocContainerRef.current) {
             // Find all layer title containers (MapStore TOC structure)
@@ -53,10 +53,10 @@ function Legend({
                 const titleText = container.querySelector('.ms-node-title');
                 if (titleText) {
                     const layerName = titleText.textContent?.trim() || '';
-                    // Add cy-data to the title container
-                    container.setAttribute('cy-data', `ms-node-title-container-${layerName.replace(/\s+/g, '-').toLowerCase()}`);
-                    // Add cy-data to the title itself
-                    titleText.setAttribute('cy-data', `ms-node-title-${layerName.replace(/\s+/g, '-').toLowerCase()}`);
+                    // Add data-ms-id to the title container
+                    container.setAttribute('data-ms-id', `ms-node-title-container-${layerName.replace(/\s+/g, '-').toLowerCase()}`);
+                    // Add data-ms-id to the title itself
+                    titleText.setAttribute('data-ms-id', `ms-node-title-${layerName.replace(/\s+/g, '-').toLowerCase()}`);
                 }
             });
             
@@ -67,7 +67,7 @@ function Legend({
                 const titleContainer = node.querySelector('.ms-node-title-container');
                 if (titleContainer) {
                     const titleText = titleContainer.textContent?.trim() || '';
-                    node.setAttribute('cy-data', `gn-legend-layer-${layerId}`);
+                    node.setAttribute('data-ms-id', `gn-legend-layer-${layerId}`);
                 }
             });
         }
@@ -78,12 +78,12 @@ function Legend({
     }
 
     return (
-        <div className="shadow gn-legend-wrapper" style={{ position: 'absolute', margin: 4, width: 'auto', zIndex: 50 }} {...{ 'cy-data': 'gn-legend-wrapper' }}>
-            <div onClick={expand} className="gn-legend-head" style={{ padding: '4px 8px', fontSize: '0.75rem' }} {...{ 'cy-data': 'gn-legend-head' }}>
-                <span role="button" className={`identify-icon glyphicon glyphicon-${expandLegend ? 'bottom' : 'next'}`} title="Expand layer legend" {...{ 'cy-data': 'gn-legend-toggle' }} />
+        <div className="shadow gn-legend-wrapper" style={{ position: 'absolute', margin: 4, width: 'auto', zIndex: 50 }} {...{ 'data-ms-id': 'gn-legend-wrapper' }}>
+            <div onClick={expand} className="gn-legend-head" style={{ padding: '4px 8px', fontSize: '0.75rem' }} {...{ 'data-ms-id': 'gn-legend-head' }}>
+                <span role="button" className={`identify-icon glyphicon glyphicon-${expandLegend ? 'bottom' : 'next'}`} title="Expand layer legend" {...{ 'data-ms-id': 'gn-legend-toggle' }} />
                 <span className="gn-legend-list-item" style={{ paddingLeft: 4 }}><Message msgId="gnviewer.legend" /></span>
             </div>
-            <div style={{ display: expandLegend ? 'block' : 'none' }} {...{ 'cy-data': 'gn-legend-content' }} ref={tocContainerRef}>
+            <div style={{ display: expandLegend ? 'block' : 'none' }} {...{ 'data-ms-id': 'gn-legend-content' }} ref={tocContainerRef}>
                 <TOC
                     map={{
                         layers: layers.map(applyVersionParamToLegend),

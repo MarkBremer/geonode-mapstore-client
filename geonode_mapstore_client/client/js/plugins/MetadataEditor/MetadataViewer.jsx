@@ -70,15 +70,15 @@ const PreviewButton = ({
     pendingChanges,
     setPreview = () => {},
     labelId = 'gnviewer.viewMetadata',
-    dataCy
+    dataMsId
 }) => {
-    const resolvedDataCy = dataCy || 'metadata-edit-view';
+    const resolvedDataMsId = dataMsId || 'metadata-edit-view';
     return (
         <Button
             size={size}
             variant={variant}
             disabled={pendingChanges}
-            {...(resolvedDataCy ? { 'cy-data': resolvedDataCy } : {})}
+            {...(resolvedDataMsId ? { 'data-ms-id': resolvedDataMsId } : {})}
             onClick={() => setPreview(true)}
         >
             <Message msgId={labelId} />

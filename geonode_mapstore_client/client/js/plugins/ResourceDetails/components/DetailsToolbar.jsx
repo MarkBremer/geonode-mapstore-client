@@ -31,8 +31,8 @@ function DetailsToolbarButton({
     loading,
     ...props
 }) {
-    const { ['cy-data']: cyDataProp, ...buttonProps } = props;
-    const resolvedDataCy = cyDataProp
+    const { ['data-ms-id']: dataMsIdProp, ...buttonProps } = props;
+    const resolvedDataMsId = dataMsIdProp
         || (['download', 'download-alt', 'new-window', 'floppy-disk', 'save'].includes(glyph) ? 'dataset-view-sidepanel-btn-download' : null)
         || (glyph === 'share-alt' ? 'dataset-view-sidepanel-btn-copy-url' : null)
         || (glyph === 'globe' ? 'dataset-view-sidepanel-btn-copy-ogc' : null);
@@ -49,7 +49,7 @@ function DetailsToolbarButton({
             square={square}
             borderTransparent={borderTransparent}
             {...buttonProps}
-            {...resolvedDataCy ? { 'cy-data': resolvedDataCy } : {}}
+            {...resolvedDataMsId ? { 'data-ms-id': resolvedDataMsId } : {}}
             tooltipId={square && labelId ? labelId : null}
             onClick={handleOnClick}
         >
@@ -92,7 +92,7 @@ function DetailsToolbar({
             <FlexBox gap="xs" centerChildrenVertically>
                 <ResourceStatus statusItems={status?.items} />
                 {items.map(({ name, Component }) => {
-                    const dataCy = ['DownloadResource', 'LayerDownload', 'IsoDownload'].includes(name)
+                    const dataMsId = ['DownloadResource', 'LayerDownload', 'IsoDownload'].includes(name)
                         ? 'dataset-view-sidepanel-btn-download'
                         : undefined;
                     return (<Component
@@ -100,7 +100,7 @@ function DetailsToolbar({
                         key={name}
                         resource={resource}
                         component={DetailsToolbarButton}
-                        dataCy={dataCy}
+                        dataMsId={dataMsId}
                     />);
                 })}
                 <CopyToClipboard
@@ -114,7 +114,7 @@ function DetailsToolbar({
                 >
                     <Button
                         variant="default"
-                        cy-data="dataset-view-sidepanel-btn-copy-url"
+                        data-ms-id="dataset-view-sidepanel-btn-copy-url"
                         onClick={()=> handleCopyPermalink('resource')}>
                         <Glyphicon glyph="share-alt" />
                     </Button>
@@ -130,7 +130,7 @@ function DetailsToolbar({
                 >
                     <Button
                         variant="default"
-                        cy-data="dataset-view-sidepanel-btn-copy-ogc"
+                        data-ms-id="dataset-view-sidepanel-btn-copy-ogc"
                         onClick={()=> handleCopyPermalink('datasetowsurl')}>
                         <Glyphicon glyph="globe" />
                     </Button>
@@ -140,7 +140,7 @@ function DetailsToolbar({
                         <Button
                             variant="primary"
                             href={info?.viewerUrl}
-                            cy-data="resource-view"
+                            data-ms-id="resource-view"
                             rel="noopener noreferrer">
                             <Message msgId={`gnhome.view${info?.typeName}`} />
                         </Button>
@@ -150,7 +150,7 @@ function DetailsToolbar({
                             <Button
                                 variant="primary"
                                 href={info?.metadataDetailUrl}
-                                cy-data="resource-view"
+                                data-ms-id="resource-view"
                                 rel="noopener noreferrer">
                                 <Message msgId={`gnhome.viewMetadata`} />
                             </Button>

@@ -112,7 +112,7 @@ const DatasetsCatalogButton = ({
             size={size}
             onClick={handleClickButton}
             variant={variant}
-            cy-data="btn-add-dataset"
+            data-ms-id="btn-add-dataset"
         >
             <Message msgId="gnviewer.addLayer" />
         </Button>

@@ -32,7 +32,7 @@ function Favorites({
     onSearch,
     delayTime,
     renderType,
-    cardCyPrefix
+    cardMsIdPrefix
 }) {
     const { query } = url.parse(location?.search || '', true);
     const f = castArray(query.f || []);
@@ -69,7 +69,7 @@ function Favorites({
                 square
                 onClick={handleOnClick}
                 loading={loading}
-                cardCyPrefix={cardCyPrefix}
+                cardMsIdPrefix={cardMsIdPrefix}
             />
         )
         : null;

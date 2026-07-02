@@ -44,8 +44,8 @@ const Autocomplete = ({
     };
 
     return (
-        <div id={id} className={`form-group${className ? " " + className : ""}${!!error ? " " + "has-error" : ""}`} {...{ 'cy-data': `${id}-group` }}>
-            {showLabel ? <label className="control-label" htmlFor={id} {...{ 'cy-data': `${id}-label` }}>
+        <div id={id} className={`form-group${className ? " " + className : ""}${!!error ? " " + "has-error" : ""}`} {...{ 'data-ms-id': `${id}-group` }}>
+            {showLabel ? <label className="control-label" htmlFor={id} {...{ 'data-ms-id': `${id}-label` }}>
                 {title || name}
                 {required ? <span className="required">{' '}*</span> : null}
                 {helpTitleIcon && !isEmpty(description) ? <>{' '}

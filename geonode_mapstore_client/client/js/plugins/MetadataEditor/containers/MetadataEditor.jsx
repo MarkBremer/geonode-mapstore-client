@@ -21,7 +21,7 @@ import MainEventView from '@js/components/MainEventView';
 import MainLoader from '@js/components/MainLoader';
 import { getMessageById } from '@mapstore/framework/utils/LocaleUtils';
 
-const metadataCyById = {
+const metadataMsIdById = {
     root_uuid: 'metadata-edit-uuid',
     root_title: 'metadata-edit-title',
     root_abstract: 'metadata-edit-abstract',
@@ -60,11 +60,11 @@ const metadataCyById = {
     root_is_published: 'metadata-edit-published'
 };
 
-function applyMetadataCyTags() {
-    Object.entries(metadataCyById).forEach(([id, cyData]) => {
+function applyMetadataMsIdTags() {
+    Object.entries(metadataMsIdById).forEach(([id, cyData]) => {
         const element = document.getElementById(id);
         if (element) {
-            element.setAttribute('cy-data', cyData);
+            element.setAttribute('data-ms-id', cyData);
         }
     });
 }
@@ -138,7 +138,7 @@ function MetadataEditor({
         if (loading || error) {
             return;
         }
-        applyMetadataCyTags();
+        applyMetadataMsIdTags();
     }, [loading, error, metadata, schema, uiSchema, updating]);
 
     function handleChange(formData) {
@@ -159,7 +159,7 @@ function MetadataEditor({
     }
 
     return (
-        <div className="gn-metadata" cy-data="metadata-editor-form">
+        <div className="gn-metadata" data-ms-id="metadata-editor-form">
             <div className="gn-metadata-header">
                 {!isEmpty(updateError) && <Alert bsStyle={updateError.type} style={{ margin: '0.25rem 0' }}>
                     {updateError.message}

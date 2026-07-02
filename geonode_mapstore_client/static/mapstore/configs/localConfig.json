@@ -536,27 +536,27 @@
                             "type": "plugin",
                             "size": "md",
                             "name": "ResourceDetailsButton",
-                            "dataCy": "dataset-view-navbar-properties"
+                            "dataMsId": "dataset-view-navbar-properties"
                         },
                         {
                             "labelId": "gnviewer.resource",
                             "showPendingChangesIcon": true,
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "dataset-view-navbar-resource"
+                                "data-ms-id": "dataset-view-navbar-resource"
                             },
                             "disableIf": "{!(state('isNewResource') || context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') || context.canCopyResource(state('gnResourceData'), state('user')) || context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase'))}",
                             "items": [
                                 {
                                     "type": "plugin",
                                     "name": "Save",
-                                    "dataCy": "dataset-view-navbar-resource-save",
+                                    "dataMsId": "dataset-view-navbar-resource-save",
                                     "disableIf": "{!state('isNewResource') && !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.canCopyResource(state('gnResourceData'), state('user'))}"
                                 },
                                 {
                                     "type": "plugin",
                                     "name": "SaveAs",
-                                    "dataCy": "dataset-view-navbar-resource-save-as",
+                                    "dataMsId": "dataset-view-navbar-resource-save-as",
                                     "disableIf": "{!state('isNewResource') && !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.canCopyResource(state('gnResourceData'), state('user')) || (!state('selectedLayerPermissions').includes('download_resourcebase') || !context.resourceHasPermission(state('gnResourceData'), 'download_resourcebase'))}"
                                 },
                                 {
@@ -566,7 +566,7 @@
                                 {
                                     "type": "plugin",
                                     "name": "DeleteResource",
-                                    "dataCy": "dataset-view-navbar-resource-delete",
+                                    "dataMsId": "dataset-view-navbar-resource-delete",
                                     "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase')}"
                                 }
                             ]
@@ -575,25 +575,25 @@
                             "labelId": "gnviewer.view",
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "dataset-view-navbar-view"
+                                "data-ms-id": "dataset-view-navbar-view"
                             },
                             "items": [
                                 {
                                     "type": "plugin",
                                     "name": "ResourceDetailsButton",
-                                    "dataCy": "dataset-view-navbar-properties"
+                                    "dataMsId": "dataset-view-navbar-properties"
                                 },
                                 {
                                     "type": "plugin",
                                     "name": "MetadataViewer",
-                                    "dataCy": "dataset-view-navbar-view-metadata"
+                                    "dataMsId": "dataset-view-navbar-view-metadata"
                                 },
                                 {
                                     "type": "link",
                                     "href": "{'#/dataset/' + (state('gnResourceData') || {}).pk + '/edit/data'}",
                                     "labelId": "gnviewer.viewData",
                                     "menuItemAttributes": {
-                                        "cy-data": "dataset-view-navbar-view-data"
+                                        "data-ms-id": "dataset-view-navbar-view-data"
                                     },
                                     "disableIf": "{state('gnResourceData') && ['raster', '3dtiles'].includes(state('gnResourceData').subtype)}"
                                 }
@@ -603,7 +603,7 @@
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "dataset-view-navbar-edit"
+                                "data-ms-id": "dataset-view-navbar-edit"
                             },
                             "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
@@ -612,7 +612,7 @@
                                     "href": "{'#/dataset/' + (state('gnResourceData') || {}).pk + '/edit/data'}",
                                     "labelId": "gnviewer.editData",
                                     "menuItemAttributes": {
-                                        "cy-data": "dataset-view-navbar-edit-data"
+                                        "data-ms-id": "dataset-view-navbar-edit-data"
                                     },
                                     "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_dataset_data')}"
                                 },
@@ -621,14 +621,14 @@
                                     "href": "{'#/dataset/' + (state('gnResourceData') || {}).pk + '/edit/settings?tab=style'}",
                                     "labelId": "gnviewer.editStyle",
                                     "menuItemAttributes": {
-                                        "cy-data": "dataset-view-navbar-edit-style"
+                                        "data-ms-id": "dataset-view-navbar-edit-style"
                                     },
                                     "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_dataset_style')}"
                                 },
                                 {
                                     "type": "plugin",
                                     "name": "OperationUploadStyle",
-                                    "dataCy": "dataset-view-navbar-edit-upload-style",
+                                    "dataMsId": "dataset-view-navbar-edit-upload-style",
                                     "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_dataset_style')}"
                                 },
                                 {
@@ -636,7 +636,7 @@
                                     "href": "{'#/dataset/' + (state('gnResourceData') || {}).pk + '/edit/settings'}",
                                     "labelId": "gnviewer.layerSettings.title",
                                     "menuItemAttributes": {
-                                        "cy-data": "dataset-view-navbar-edit-map-layer-settings"
+                                        "data-ms-id": "dataset-view-navbar-edit-map-layer-settings"
                                     },
                                     "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_dataset_style')}"
                                 },
@@ -645,19 +645,19 @@
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
                                     "labelId": "gnviewer.editMetadata",
                                     "menuItemAttributes": {
-                                        "cy-data": "dataset-view-navbar-edit-metadata"
+                                        "data-ms-id": "dataset-view-navbar-edit-metadata"
                                     }
                                 },
                                 {
                                     "type": "plugin",
                                     "name": "OperationUploadMetadata",
-                                    "dataCy": "dataset-view-navbar-edit-upload-metadata",
+                                    "dataMsId": "dataset-view-navbar-edit-upload-metadata",
                                     "disableIf": "{state('gnResourceData').subtype === '3dtiles'}"
                                 },
                                 {
                                     "type": "plugin",
                                     "name": "OperationReplaceDataset",
-                                    "dataCy": "dataset-view-navbar-edit-upload-dataset",
+                                    "dataMsId": "dataset-view-navbar-edit-upload-dataset",
                                     "disableIf": "{state('gnResourceData').sourcetype === '3dtiles'}"
                                 }
                             ]
@@ -666,30 +666,30 @@
                             "labelId": "gnviewer.download",
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "dataset-view-navbar-download"
+                                "data-ms-id": "dataset-view-navbar-download"
                             },
                             "items": [
                                 {
                                     "type": "plugin",
                                     "name": "DownloadResource",
-                                    "dataCy": "dataset-view-navbar-download-dataset"
+                                    "dataMsId": "dataset-view-navbar-download-dataset"
                                 },
                                 {
                                     "type": "plugin",
                                     "name": "LayerDownload",
-                                    "dataCy": "dataset-view-navbar-download-export"
+                                    "dataMsId": "dataset-view-navbar-download-export"
                                 },
                                 {
                                     "type": "plugin",
                                     "name": "IsoDownload",
-                                    "dataCy": "dataset-view-navbar-download-iso-metadata"
+                                    "dataMsId": "dataset-view-navbar-download-iso-metadata"
                                 }
                             ]
                         },
                         {
                             "type": "plugin",
                             "name": "ShareActionButton",
-                            "dataCy": "dataset-view-navbar-share",
+                            "dataMsId": "dataset-view-navbar-share",
                             "disableIf": "{state('isNewResource') || (!state('isNewResource') && !context.canAccessPermissions(state('gnResourceData')))}"
                         },
                         {
@@ -699,14 +699,14 @@
                         {
                             "type": "plugin",
                             "name": "FilterLayer",
-                            "dataCy": "dataset-view-navbar-filter"
+                            "dataMsId": "dataset-view-navbar-filter"
                         },
                         {
                             "type": "link",
                             "href": "{context.getCreateNewMapLink(state('gnResourceData'))}",
                             "labelId": "gnviewer.createMap",
                             "menuItemAttributes": {
-                                "cy-data": "dataset-view-navbar-createmap"
+                                "data-ms-id": "dataset-view-navbar-createmap"
                             },
                             "disableIf": "{!(state('user') && state('user').perms && state('user').perms.includes('add_resource'))}"
                         }
@@ -1551,7 +1551,7 @@
                             "showPendingChangesIcon": true,
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "map-view-navbar-resource"
+                                "data-ms-id": "map-view-navbar-resource"
                             },
                             "disableIf": "{!state('isNewResource') && !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.canCopyResource(state('gnResourceData'), state('user')) && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase')}",
                             "items": [
@@ -1601,7 +1601,7 @@
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
                                     "labelId": "gnviewer.editMetadata",
                                     "menuItemAttributes": {
-                                        "cy-data": "dataset-view-edit-metadata"
+                                        "data-ms-id": "dataset-view-edit-metadata"
                                     }
                                 },
                                 {
@@ -2292,7 +2292,7 @@
                             "showPendingChangesIcon": true,
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "geostory-view-navbar-resource"
+                                "data-ms-id": "geostory-view-navbar-resource"
                             },
                             "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase') && !state('isNewResource') && !context.canCopyResource(state('gnResourceData'), state('user'))}",
                             "items": [
@@ -2345,7 +2345,7 @@
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "geostory-view-navbar-edit"
+                                "data-ms-id": "geostory-view-navbar-edit"
                             },
                             "disableIf": "{state('isNewResource') || !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
@@ -2354,7 +2354,7 @@
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
                                     "labelId": "gnviewer.editMetadata",
                                     "menuItemAttributes": {
-                                        "cy-data": "geostory-view-navbar-edit-metadata"
+                                        "data-ms-id": "geostory-view-navbar-edit-metadata"
                                     }
                                 }
                             ]
@@ -2489,7 +2489,7 @@
                             "type": "dropdown",
                             "showPendingChangesIcon": true,
                             "toggleAttributes": {
-                                "cy-data": "document-view-navbar-resource"
+                                "data-ms-id": "document-view-navbar-resource"
                             },
                             "disableIf": "{!(context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') || context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase') || (context.canCopyResource(state('gnResourceData'), state('user')) && context.resourceHasPermission(state('gnResourceData'), 'download_resourcebase') && (state('isNewResource') || state('selectedLayerPermissions').includes('download_resourcebase'))))}",
                             "items": [
@@ -2532,7 +2532,7 @@
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "document-view-navbar-edit"
+                                "data-ms-id": "document-view-navbar-edit"
                             },
                             "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
@@ -2541,7 +2541,7 @@
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
                                     "labelId": "gnviewer.editMetadata",
                                     "menuItemAttributes": {
-                                        "cy-data": "document-view-navbar-edit-metadata"
+                                        "data-ms-id": "document-view-navbar-edit-metadata"
                                     }
                                 }
                             ]
@@ -2621,7 +2621,7 @@
                             "type": "dropdown",
                             "showPendingChangesIcon": true,
                             "toggleAttributes": {
-                                "cy-data": "dashboard-view-navbar-resource"
+                                "data-ms-id": "dashboard-view-navbar-resource"
                             },
                             "disableIf": "{!context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !state('isNewResource') && !context.canCopyResource(state('gnResourceData'), state('user')) && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase')}",
                             "items": [
@@ -3331,7 +3331,7 @@
                             "type": "dropdown",
                             "variant": "primary",
                             "toggleAttributes": {
-                                "cy-data": "btn-add-resource"
+                                "data-ms-id": "btn-add-resource"
                             },
                             "noCaret": true,
                             "items": [
@@ -3341,7 +3341,7 @@
                                     "type": "link",
                                     "href": "{context.getCataloguePath('/catalogue/#/upload/dataset')}",
                                     "menuItemAttributes": {
-                                        "cy-data": "btn-add-resource-upload-dataset"
+                                        "data-ms-id": "btn-add-resource-upload-dataset"
                                     }
                                 },
                                 {
@@ -3350,7 +3350,7 @@
                                     "type": "link",
                                     "href": "{context.getCataloguePath('/catalogue/#/upload/document')}",
                                     "menuItemAttributes": {
-                                        "cy-data": "btn-add-resource-upload-document"
+                                        "data-ms-id": "btn-add-resource-upload-document"
                                     }
                                 },
                                 {
@@ -3359,7 +3359,7 @@
                                     "type": "link",
                                     "href": "{context.getCataloguePath('/catalogue/#/create/dataset')}",
                                     "menuItemAttributes": {
-                                        "cy-data": "btn-add-resource-create-dataset"
+                                        "data-ms-id": "btn-add-resource-create-dataset"
                                     },
                                     "disableIf": "{(state('settings') && state('settings').createLayer) ? false : true}"
                                 },
@@ -3369,7 +3369,7 @@
                                     "type": "link",
                                     "href": "{context.getCataloguePath('/catalogue/#/map/new')}",
                                     "menuItemAttributes": {
-                                        "cy-data": "btn-add-resource-create-map"
+                                        "data-ms-id": "btn-add-resource-create-map"
                                     }
                                 },
                                 {
@@ -3378,7 +3378,7 @@
                                     "type": "link",
                                     "href": "{context.getCataloguePath('/catalogue/#/geostory/new')}",
                                     "menuItemAttributes": {
-                                        "cy-data": "btn-add-resource-create-geostory"
+                                        "data-ms-id": "btn-add-resource-create-geostory"
                                     }
                                 },
                                 {
@@ -3387,7 +3387,7 @@
                                     "type": "link",
                                     "href": "{context.getCataloguePath('/catalogue/#/dashboard/new')}",
                                     "menuItemAttributes": {
-                                        "cy-data": "btn-add-resource-create-dashboard"
+                                        "data-ms-id": "btn-add-resource-create-dashboard"
                                     }
                                 },
                                 {
@@ -3396,7 +3396,7 @@
                                     "type": "link",
                                     "href": "/services/?limit=5",
                                     "menuItemAttributes": {
-                                        "cy-data": "btn-add-resource-remote-services"
+                                        "data-ms-id": "btn-add-resource-remote-services"
                                     }
                                 }
                             ]
@@ -3604,7 +3604,7 @@
                             "showPendingChangesIcon": true,
                             "type": "dropdown",
                             "toggleAttributes": {
-                                "cy-data": "viewer-navbar-resource"
+                                "data-ms-id": "viewer-navbar-resource"
                             },
                             "disableIf": "{!state('isNewResource') && !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase') && !context.canCopyResource(state('gnResourceData'), state('user')) && !context.resourceHasPermission(state('gnResourceData'), 'delete_resourcebase')}",
                             "items": [

@@ -26,7 +26,7 @@ function ViewerLayout({
         <div
             id={id}
             className={`${className ? `${className} ` : ''}gn-viewer-layout`}
-            {...(cyData ? { 'cy-data': cyData } : {})}
+            {...(cyData ? { 'data-ms-id': cyData } : {})}
             style={{
                 position: 'absolute',
                 top: 0,
@@ -53,7 +53,7 @@ function ViewerLayout({
                 <div
                     id="container" // needed for longitudinal profile dropdown
                     className="gn-viewer-layout-center"
-                    cy-data="map-container"
+                    data-ms-id="map-container"
                     style={{
                         flex: 1,
                         position: 'relative'
@@ -66,7 +66,7 @@ function ViewerLayout({
                 </div>
                 <div
                     className="gn-viewer-right-overlay shadow-far ms-main-colors"
-                    {...(cyData ? {'cy-data': `${cyData}-right-overlay`} : {})}
+                    {...(cyData ? {'data-ms-id': `${cyData}-right-overlay`} : {})}
                 >
                     {rightOverlay}
                 </div>

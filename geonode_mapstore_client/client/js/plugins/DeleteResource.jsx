@@ -129,7 +129,7 @@ const DeleteButton = ({
     onClick,
     size,
     resource,
-    dataCy
+    dataMsId
 }) => {
 
     const handleClickButton = () => {
@@ -141,7 +141,7 @@ const DeleteButton = ({
             variant="danger"
             size={size}
             onClick={handleClickButton}
-            {...(dataCy ? { 'cy-data': dataCy } : {})}
+            {...(dataMsId ? { 'data-ms-id': dataMsId } : {})}
         >
             <Message msgId="gnhome.delete"/>
         </Button>
@@ -164,8 +164,8 @@ function DeleteMenuItem({
     authenticated,
     onDelete,
     component,
-    cardCyPrefix,
-    dataCy
+    cardMsIdPrefix,
+    dataMsId
 }) {
 
     if (!(authenticated && resource?.perms?.includes('delete_resourcebase'))) {
@@ -179,9 +179,9 @@ function DeleteMenuItem({
             }
             glyph="trash"
             labelId="gnhome.delete"
-            cardCyPrefix={cardCyPrefix}
-            dataCy={dataCy}
-            {...(dataCy ? { 'cy-data': dataCy } : {})}
+            cardMsIdPrefix={cardMsIdPrefix}
+            dataMsId={dataMsId}
+            {...(dataMsId ? { 'data-ms-id': dataMsId } : {})}
         />
     );
 }

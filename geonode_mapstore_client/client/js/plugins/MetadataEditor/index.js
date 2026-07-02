@@ -108,7 +108,7 @@ const BackToButton = ({ size, variant, resource }) => {
         size={size}
         variant={variant}
         href={parseDevHostname(resource.detail_url || '')}
-        {...{ 'cy-data': 'metadata-edit-back' }}
+        {...{ 'data-ms-id': 'metadata-edit-back' }}
     >
         <Message msgId="gnviewer.goBackTo" msgParams={{ resourceName: resource.title }}/>
     </Button>);

@@ -234,7 +234,7 @@ const CreateDataset = ({
                 '_absolute',
                 '_padding-lr-md'
             ]}
-            {...{'cy-data': 'dataset-create-form'}}
+            {...{'data-ms-id': 'dataset-create-form'}}
         >
             <FlexBox
                 column
@@ -258,7 +258,7 @@ const CreateDataset = ({
                         autoComplete="off"
                         value={dataset?.title}
                         disabled={loading}
-                        cy-data="dataset-create-title"
+                        data-ms-id="dataset-create-title"
                         onChange={(event) =>
                             setDataset({
                                 ...dataset,
@@ -381,7 +381,7 @@ const CreateDataset = ({
                         className="gn-attribute-button"
                         variant="success"
                         disabled={!!allErrors.length || loading}
-                        cy-data="dataset-create-submit"
+                        data-ms-id="dataset-create-submit"
                         onClick={handleCreate}>
                         <Message msgId="gnviewer.createNewDataset" />
                         {loading ? <Spinner /> : null}

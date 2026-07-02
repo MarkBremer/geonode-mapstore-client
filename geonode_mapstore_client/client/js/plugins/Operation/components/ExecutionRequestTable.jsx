@@ -37,7 +37,7 @@ function ExecutionRequestTable({
 
     if (!requests.length) {
         return (
-            <div className="gn-upload-processing" cy-data="document-upload-processing">
+            <div className="gn-upload-processing" data-ms-id="document-upload-processing">
                 <div className="gn-main-event-container">
                     <div className="gn-main-event-content">
                         <div className="gn-main-event-text">
@@ -53,10 +53,10 @@ function ExecutionRequestTable({
         );
     }
 
-    const RenderActionButton = ({request, href, msgId, dataCy}) => (
+    const RenderActionButton = ({request, href, msgId, dataMsId}) => (
         <Button
             variant="primary"
-            cy-data={dataCy}
+            data-ms-id={dataMsId}
             onClick={() => handleDelete(request.exec_id)}
             href={href}
             target="_blank"
@@ -68,7 +68,7 @@ function ExecutionRequestTable({
 
     const { viewResource = true, editMetadata, viewResourceLabelId, editMetadataLabelId } = props;
     return (
-        <div className="gn-upload-processing" cy-data="document-upload-processing">
+        <div className="gn-upload-processing" data-ms-id="document-upload-processing">
             <div className="gn-upload-processing-list">
                 <table className="table">
                     <thead>
@@ -86,15 +86,15 @@ function ExecutionRequestTable({
                                 <tr
                                     key={request.exec_id}
                                     className={request.status === 'failed' ? 'danger' : ''}
-                                    cy-data={`upload-list-${idx}`}
+                                    data-ms-id={`upload-list-${idx}`}
                                 >
-                                    <td cy-data={`upload-list-${idx}-title`}><Glyphicon glyph={iconName}/>{' '}{request.name}</td>
-                                    <td cy-data={`upload-list-${idx}-created`}>{moment(request.created).format('MMMM Do YYYY, h:mm:ss a')}</td>
+                                    <td data-ms-id={`upload-list-${idx}-title`}><Glyphicon glyph={iconName}/>{' '}{request.name}</td>
+                                    <td data-ms-id={`upload-list-${idx}-created`}>{moment(request.created).format('MMMM Do YYYY, h:mm:ss a')}</td>
                                     <td>
                                         {request.status === 'running' ? (
                                             <Spinner
                                                 className="gn-upload-loader-spinner"
-                                                cy-data={`upload-list-${idx}-processing`}
+                                                data-ms-id={`upload-list-${idx}-processing`}
                                             />
                                         ) : null}
                                         {request.status === 'failed'
@@ -109,7 +109,7 @@ function ExecutionRequestTable({
                                                 {viewResource && <RenderActionButton
                                                     request={request}
                                                     msgId={viewResourceLabelId ?? 'gnviewer.view'}
-                                                    dataCy={`upload-list-${idx}-btn-view`}
+                                                    dataMsId={`upload-list-${idx}-btn-view`}
                                                     href={detailUrls.length === 1 ? detailUrls[0] : getCataloguePath('/catalogue/#/')}
                                                 /> }
                                                 {editMetadata && <RenderActionButton
@@ -124,15 +124,15 @@ function ExecutionRequestTable({
                                             ? <Glyphicon glyph="check" />
                                             : null}
                                         {onReload && request.status === 'finished'
-                                            ? <div cy-data="metadata-upload-success">
-                                                <Button variant="primary" cy-data="metadata-return-to-dataset" onClick={() => onReload()}>
+                                            ? <div data-ms-id="metadata-upload-success">
+                                                <Button variant="primary" data-ms-id="metadata-return-to-dataset" onClick={() => onReload()}>
                                                     <Message msgId={'gnviewer.reload'} />
                                                 </Button>
                                             </div>
                                             : null}
                                     </td>
                                     <td>
-                                        <Button cy-data={`upload-list-${idx}-btn-remove`} onClick={() => handleDelete(request.exec_id)}>
+                                        <Button data-ms-id={`upload-list-${idx}-btn-remove`} onClick={() => handleDelete(request.exec_id)}>
                                             <Glyphicon glyph="trash" />
                                         </Button>
                                     </td>

@@ -106,7 +106,7 @@ function ResourceDetailsPanel({
                     "type": "text",
                     "labelId": "gnviewer.title",
                     "value": "{context.get(state('gnResourceData'), 'title')}",
-                    "cy-data": "resource-metadata-info-value"
+                    "data-ms-id": "resource-metadata-info-value"
                 },
                 {
                     "type": "link",
@@ -213,7 +213,7 @@ function ResourceDetailsPanel({
                     "labelId": "gnviewer.viewFullMetadata",
                     "href": "{context.getMetadataDetailUrl(state('gnResourceData'))}",
                     "disableIf": "{!context.getMetadataDetailUrl(state('gnResourceData'))}",
-                    "cy-data": "metadata-view-full"
+                    "data-ms-id": "metadata-view-full"
                 }
             ]
         },
@@ -337,7 +337,7 @@ function ResourceDetailsPanel({
         <TargetSelectorPortal targetSelector={targetSelector}>
             <ResourcesPanelWrapper
                 className="ms-resource-detail shadow-xl"
-                cy-data="resource-detail-view"
+                data-ms-id="resource-detail-view"
                 top={stickyTop}
                 bottom={stickyBottom}
                 show={show}
@@ -408,7 +408,7 @@ export default createPlugin('ResourceDetails', {
     containers: {
         ActionNavbar: [{
             name: 'ResourceDetailsButton',
-            Component: connect((state) => ({resource: getResourceData(state)}), { onShow: setShowDetails })(({ component, resourcesGridId, onShow, resource, dataCy }) => {
+            Component: connect((state) => ({resource: getResourceData(state)}), { onShow: setShowDetails })(({ component, resourcesGridId, onShow, resource, dataMsId }) => {
                 if (!resource?.pk) return null;
 
                 const Component = component;
@@ -421,8 +421,8 @@ export default createPlugin('ResourceDetails', {
                         glyph="details"
                         square
                         labelId="resourcesCatalog.viewResourceProperties"
-                        dataCy={dataCy}
-                        {...(dataCy ? { 'cy-data': dataCy } : {})}
+                        dataMsId={dataMsId}
+                        {...(dataMsId ? { 'data-ms-id': dataMsId } : {})}
                     />
                 ) : null;
             }),
@@ -443,11 +443,11 @@ export default createPlugin('ResourceDetails', {
                     onSelectTab: setDetailPanelTab,
                     onShowDetails: setShowDetails
                 }
-            )(({ enabled, size, onSelectTab, onShowDetails, dataCy }) => {
+            )(({ enabled, size, onSelectTab, onShowDetails, dataMsId }) => {
                 return enabled
                     ? <Button
                         size={size}
-                        {...(dataCy ? { 'cy-data': dataCy } : {})}
+                        {...(dataMsId ? { 'data-ms-id': dataMsId } : {})}
                         onClick={() => {
                             onShowDetails(true);
                             onSelectTab('share');
@@ -472,7 +472,7 @@ export default createPlugin('ResourceDetails', {
                     onSelect: requestResource,
                     onShow: setShowDetails
                 }
-            )(({ resourcesGridId, resource, onSelect, component, selectedResource, onShow, cardCyPrefix }) => {
+            )(({ resourcesGridId, resource, onSelect, component, selectedResource, onShow, cardMsIdPrefix }) => {
                 const Component = component;
                 function handleClick() {
                     if (!selectedResource['@ms-detail'] || selectedResource?.pk !== resource?.pk) {
@@ -486,7 +486,7 @@ export default createPlugin('ResourceDetails', {
                         glyph="details"
                         square
                         labelId="resourcesCatalog.viewResourceProperties"
-                        cardCyPrefix={cardCyPrefix}
+                        cardMsIdPrefix={cardMsIdPrefix}
                     />
                 );
             }),

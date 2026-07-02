@@ -20,7 +20,7 @@ function RichTextEditor({
 }) {
     const [editorState, setEditorState] = useState(htmlToDraftJSEditorState(value || ''));
     return (
-        <div {...{ 'cy-data': `${id}-rich-text-editor` }}>
+        <div {...{ 'data-ms-id': `${id}-rich-text-editor` }}>
             <Editor
                 {...props}
                 editorState={editorState}
