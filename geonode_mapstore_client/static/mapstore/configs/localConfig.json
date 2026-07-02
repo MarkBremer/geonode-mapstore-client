@@ -1594,18 +1594,12 @@
                         {
                             "labelId": "gnviewer.edit",
                             "type": "dropdown",
-                            "toggleAttributes": {
-                                "cy-data": "map-view-navbar-edit"
-                            },
                             "disableIf": "{state('isNewResource') || !context.resourceHasPermission(state('gnResourceData'), 'change_resourcebase')}",
                             "items": [
                                 {
                                     "type": "link",
                                     "href": "{context.getMetadataUrl(state('gnResourceData'))}",
-                                    "labelId": "gnviewer.editMetadata",
-                                    "menuItemAttributes": {
-                                        "cy-data": "map-view-navbar-edit-metadata"
-                                    }
+                                    "labelId": "gnviewer.editMetadata"
                                 },
                                 {
                                     "type": "divider",

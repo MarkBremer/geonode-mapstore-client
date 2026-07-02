@@ -24,9 +24,9 @@ function FieldTemplate(props) {
         return <div className="hidden">{children}</div>;
     }
     return (
-        <WrapIfAdditionalTemplate {...props}>
+        <WrapIfAdditionalTemplate {...props} {...{ 'cy-data': `${id}-wrapper` }}>
             {displayLabel &&
-                <label className={`control-label${formContext?.capitalizeTitle ? ' capitalize' : ''}`} htmlFor={id}>
+                <label className={`control-label${formContext?.capitalizeTitle ? ' capitalize' : ''}`} htmlFor={id} {...{ 'cy-data': `${id}-label` }}>
                     {label}
                     {required && <span className="required">{' '}*</span>}
                     {description ? <>{' '}{description}</> : null}

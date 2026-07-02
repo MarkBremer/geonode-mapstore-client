@@ -10,11 +10,11 @@
     <li><a id="sign-in" href="/account/login/?next=/" class="nav-link btn btn-default" cy-data="btn-profile-sign-in">Sign in</a></li>
 {% else %}
     <li>
-        <div class="dropdown gn-user-menu-dropdown">
+        <div class="dropdown gn-user-menu-dropdown" cy-data="gn-user-menu-dropdown">
             <button role="button" type="button" class="dropdown-toggle btn btn-default" data-toggle="dropdown" cy-data="btn-profile-menu">
                 <img src="{% avatar_url request.user %}" />
             </button>
-            <ul class="dropdown-menu dropdown-menu-right">
+            <ul class="dropdown-menu dropdown-menu-right" cy-data="gn-user-menu-dropdown-menu">
                 <li><a href="{{ request.user.get_absolute_url }}" cy-data="btn-profile-profile">{% trans "Profile" %}</a></li>
                 {% if request.user_agent.is_mobile %}
                     <li role="separator" class="divider"></li>
