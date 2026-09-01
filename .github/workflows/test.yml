@@ -1,12 +1,12 @@
 # This is a basic workflow to help you get started with Actions
 
-name: GeoNode Client 5.0.x CI (tests)
+name: GeoNode Client CI (tests)
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow pull request events but only for the 5.0.x branch
+  # Triggers the workflow pull request events but only for the master branch
   pull_request:
-    branches: [ 5.0.x ]
+    branches: [ master ]
     paths: 
       - "geonode_mapstore_client/client/**"
 
@@ -48,6 +48,13 @@ jobs:
       ###############
       # NPM CHECKS
       #############
+      - name: "Run JsDoc"
+        run: |
+          npm install jsdoc@4.0.0 -g
+          npm install @jsdoc/salty@0.2.1 -g
+          npm run docs
+        working-directory: ${{env.working-directory}}
+
       - name: "Run npm install"
         run: npm install
         working-directory: ${{env.working-directory}}
